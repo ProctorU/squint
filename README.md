@@ -37,8 +37,6 @@ Indexes:
 
 
 In your code use queries like:
-
-* query's like
 ```
 Post.where(properties: { referer: 'http://example.com/one' } ).count
 ```
