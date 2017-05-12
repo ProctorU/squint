@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: Post One Title
+  body: Post One Body
+  request_info: { referer: "http://example.com/one" }
+  properties: { referer: "http://example.com/one" }
+
+two:
+  title: Post Two Title
+  body: Post Two Body
+  request_info: { referer: "http://example.com/two" }
+  properties: { referer: "http://example.com/two" }
+
+three:
+  title: Post Three Title
+  body: Post Three Body
