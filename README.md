@@ -1,4 +1,4 @@
-= SearchSemiStructuredData
+# SearchSemiStructuredData
 
 DB searching inside columns containing semi-structured data like json, jsonb and hstore
 
@@ -14,7 +14,7 @@ Include it in your models:
 ```ruby
 class Post < ActiveRecord::Base
   include SearchSemiStructuredData
-
+  # ...
 end
 ```
 
