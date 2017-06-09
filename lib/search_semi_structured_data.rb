@@ -84,23 +84,27 @@ module SearchSemiStructuredData
         query_value = Arel::Nodes::Quoted.new(temp_attr.to_s)
       end
       column_name_segments[0] = column_name_segments[0]
-      hfa = column_name_segments.join('->'.freeze)
+      attribute_selector = column_name_segments.join('->'.freeze)
 
       # JSON(B) data needs to have the last accessor be ->> instead of
       # -> .   The ->> returns the data as text instead of jsonb.
       # hstore columns generally don't have nested keys / hashes
       # Possibly need to raise an error if the hash for an hstore
       # column references nested arrays?
-      hfa[hfa.rindex('>'.freeze)] = '>>'.freeze unless column_type == 'hstore'.freeze
+      unless column_type == 'hstore'.freeze
+        attribute_selector[attribute_selector.rindex('>'.freeze)] = '>>'.freeze
+      end
 
       if(query_value.is_a? Array)
-        reln = arel_table[Arel::Nodes::SqlLiteral.new(hfa)].in(query_value)
+        reln = arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].in(query_value)
       else
-        reln = arel_table[Arel::Nodes::SqlLiteral.new(hfa)].eq(query_value)
+        reln = arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].eq(query_value)
       end
 
       if(contains_nil)
-        reln = Arel::Nodes::Grouping.new(reln.or(arel_table[Arel::Nodes::SqlLiteral.new(hfa)].eq(nil)))
+        reln = Arel::Nodes::Grouping.new(
+          reln.or(arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].eq(nil))
+        )
       end
       reln
     end
