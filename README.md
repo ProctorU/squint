@@ -39,7 +39,7 @@ Indexes:
 
 ## Basic Usage
 In your code use queries like:
-```
+```ruby
 Post.where(properties: { referer: 'http://example.com/one' } )
 # SELECT "posts".* FROM "posts" WHERE "posts"."properties"->'referer' = 'http://example.com/one'
 
