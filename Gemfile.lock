@@ -42,17 +42,27 @@ GEM
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
     arel (6.0.4)
+    axiom-types (0.1.1)
+      descendants_tracker (~> 0.0.4)
+      ice_nine (~> 0.11.0)
+      thread_safe (~> 0.3, >= 0.3.1)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     builder (3.2.3)
     byebug (9.0.6)
     coderay (1.1.1)
+    coercible (1.0.0)
+      descendants_tracker (~> 0.0.1)
     concurrent-ruby (1.0.5)
     debug_inspector (0.0.3)
+    descendants_tracker (0.0.4)
+      thread_safe (~> 0.3, >= 0.3.1)
+    equalizer (0.0.11)
     erubis (2.7.0)
     globalid (0.4.0)
       activesupport (>= 4.2.0)
     i18n (0.8.1)
+    ice_nine (0.11.2)
     json (2.1.0)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
@@ -125,10 +135,18 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
+    storext (2.2.2)
+      rails (>= 4.0, < 6.0)
+      virtus
     thor (0.19.4)
     thread_safe (0.3.6)
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
+    virtus (1.0.5)
+      axiom-types (~> 0.1)
+      coercible (~> 1.0)
+      descendants_tracker (~> 0.0, >= 0.0.3)
+      equalizer (~> 0.0, >= 0.0.9)
 
 PLATFORMS
   ruby
@@ -142,6 +160,7 @@ DEPENDENCIES
   pry-remote
   pry-stack_explorer
   search_semi_structured_data!
+  storext
 
 BUNDLED WITH
    1.14.6

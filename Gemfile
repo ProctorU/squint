@@ -20,3 +20,4 @@ gem 'pry-remote', group: [:development, :test]
 gem 'pry-stack_explorer', group: [:development, :test]
 gem 'minitest-focus', group: [:development, :test], require: false
 
+gem 'storext'

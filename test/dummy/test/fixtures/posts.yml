@@ -15,3 +15,17 @@ two:
 three:
   title: Post Three Title
   body: Post Three Body
+
+with_storext:
+  title: With Storext title
+  body: With Storext title
+  request_info: { referer: "http://example.com/random" }
+  properties: { referer: "http://example.com/random" }
+  storext_attributes: { zip_code: '35124' }
+
+with_storext_friends:
+  title: With Storext title
+  body: With Storext title
+  request_info: { referer: "http://example.com/random" }
+  properties: { referer: "http://example.com/random" }
+  storext_attributes: { zip_code: '36081', friend_count: 10 }

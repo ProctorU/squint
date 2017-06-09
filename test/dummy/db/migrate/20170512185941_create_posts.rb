@@ -6,6 +6,7 @@ class CreatePosts < ActiveRecord::Migration
       t.string :body
       t.jsonb :request_info
       t.hstore :properties
+      t.jsonb :storext_attributes
 
       t.timestamps null: false
     end

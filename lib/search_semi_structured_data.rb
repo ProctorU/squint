@@ -50,15 +50,38 @@ module SearchSemiStructuredData
       column_name_segments = []
       quote_char = '"'.freeze
       while(temp_attr.is_a?(Hash))
+        attribute_sym = temp_attr.keys.first.to_sym
         column_name_segments << (quote_char + temp_attr.keys.first.to_s + quote_char)
         quote_char = '\''.freeze
         temp_attr = temp_attr[temp_attr.keys.first]
       end
+
       query_value = temp_attr
-      if [FalseClass, TrueClass, Array, NilClass].include?(temp_attr.class )
+      if(respond_to? :storext_definitions)
+        if storext_definitions.keys.include?(attribute_sym) &&
+           storext_definitions[attribute_sym][:opts][:default] &&
+           [temp_attr].compact.map(&:to_s).flatten.include?(storext_definitions[attribute_sym][:opts][:default].to_s)
+          temp_attr = [temp_attr,nil].flatten
+        end
+      end
+
+      contains_nil = false
+      if temp_attr.is_a? Array
+        contains_nil = temp_attr.include?(nil)
+        temp_attr.compact!
+        temp_attr = temp_attr[0] if temp_attr.size == 1
+      end
+
+      if temp_attr.is_a? Array
+        temp_attr = temp_attr.map(&:to_s)
+      elsif ![FalseClass, TrueClass, Array, NilClass].include?(temp_attr.class)
+        temp_attr = temp_attr.to_s
+      end
+
+      if [FalseClass, TrueClass, Array, NilClass].include?(temp_attr.class)
         query_value = temp_attr
       else  # strings or string-like things
-        query_value = Arel::Nodes::Quoted.new(temp_attr)
+        query_value = Arel::Nodes::Quoted.new(temp_attr.to_s)
       end
       column_name_segments[0] = column_name_segments[0]
       hfa = column_name_segments.join('->'.freeze)
@@ -74,6 +97,10 @@ module SearchSemiStructuredData
         reln = arel_table[Arel::Nodes::SqlLiteral.new(hfa)].in(query_value)
       else
         reln = arel_table[Arel::Nodes::SqlLiteral.new(hfa)].eq(query_value)
+      end
+
+      if(contains_nil)
+        reln = Arel::Nodes::Grouping.new(reln.or(arel_table[Arel::Nodes::SqlLiteral.new(hfa)].eq(nil)))
       end
       reln
     end

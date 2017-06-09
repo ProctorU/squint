@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(version: 20170512185941) do
     t.string   "body"
     t.jsonb    "request_info"
     t.hstore   "properties"
+    t.jsonb    "storext_attributes"
     t.datetime "created_at",   null: false
     t.datetime "updated_at",   null: false
   end
