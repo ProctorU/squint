@@ -46,15 +46,12 @@ GEM
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
-    binding_of_caller (0.7.2)
-      debug_inspector (>= 0.0.1)
     builder (3.2.3)
     byebug (9.0.6)
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     concurrent-ruby (1.0.5)
-    debug_inspector (0.0.3)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     equalizer (0.0.11)
@@ -96,9 +93,6 @@ GEM
     pry-remote (0.1.8)
       pry (~> 0.9)
       slop (~> 3.0)
-    pry-stack_explorer (0.4.9.2)
-      binding_of_caller (>= 0.7)
-      pry (>= 0.9.11)
     rack (1.6.6)
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -158,7 +152,6 @@ DEPENDENCIES
   pry-highlight
   pry-rails
   pry-remote
-  pry-stack_explorer
   search_semi_structured_data!
   storext
 
