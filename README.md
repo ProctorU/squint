@@ -83,7 +83,7 @@ class Post < ActiveRecord::Base
 end
 ```
 
-Example using default value:
+Example using StoreXT with a default value:
 ```ruby
 Post.where(storext_attributes: { zip_code: '90210' } )
 # -- jsonb

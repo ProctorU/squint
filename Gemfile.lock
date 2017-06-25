@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     search_semi_structured_data (0.0.1)
+      pg
       rails (~> 4.2.8)
 
 GEM
@@ -147,7 +148,6 @@ PLATFORMS
 
 DEPENDENCIES
   minitest-focus
-  pg
   pry-byebug
   pry-highlight
   pry-rails

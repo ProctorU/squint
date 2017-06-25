@@ -23,7 +23,7 @@ module SearchSemiStructuredData
     # that are hstore, json, or jsonb and will benefit from
     # searchability
     HASH_DATA_COLUMNS = base.columns_hash.keys.collect {|col_name|
-      if(%w( hstore json jsonb ).include?(base.columns_hash[col_name].sql_type))
+      if %w( hstore json jsonb ).include?(base.columns_hash[col_name].sql_type)
         [col_name.to_sym,base.columns_hash[col_name].sql_type]
       else
         nil
@@ -38,10 +38,9 @@ module SearchSemiStructuredData
     ar_reln_module.send :define_method, :build_where do |*args|
       return_value = []
       args.each do |arg|
-        if(arg.is_a? Hash)
+        if arg.is_a?(Hash)
           arg.keys.each do |key|
-            if(arg[key].is_a?(Hash) &&
-               HASH_DATA_COLUMNS[key])
+            if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
               return_value << hash_field_reln(*[key => arg[key]])
             else
               return_value += super(key => arg[key])
@@ -61,6 +60,7 @@ module SearchSemiStructuredData
     ar_reln_module.send :define_method, :hash_field_reln do |*args|
       temp_attr = args[0]
       check_attr_missing = false
+      contains_nil = false
       column_type = HASH_DATA_COLUMNS[args[0].keys.first]
       column_name_segments = []
       quote_char = '"'.freeze
@@ -71,20 +71,23 @@ module SearchSemiStructuredData
         temp_attr = temp_attr[temp_attr.keys.first]
       end
 
-      query_value = temp_attr
-      if(respond_to? :storext_definitions)
+      if respond_to?(:storext_definitions)
         if storext_definitions.keys.include?(attribute_sym) &&
            !storext_definitions[attribute_sym].dig(:opts,:default).nil? &&
-           [temp_attr].compact.map(&:to_s).flatten.include?(storext_definitions[attribute_sym][:opts][:default].to_s)
+           [temp_attr].compact.map(&:to_s).
+             flatten.
+             include?(storext_definitions[attribute_sym][:opts][:default].to_s)
           check_attr_missing = true
-          # temp_attr = [temp_attr,nil].flatten
         end
       end
 
-      contains_nil = false
+      # Check for nil in array
       if temp_attr.is_a? Array
         contains_nil = temp_attr.include?(nil)
+        # remove the nil from the array - we'll handle that later
         temp_attr.compact!
+        # if the Array is now just 1 element, it doesn't need to be
+        # an Array any longer
         temp_attr = temp_attr[0] if temp_attr.size == 1
       end
 
@@ -111,18 +114,22 @@ module SearchSemiStructuredData
         attribute_selector[attribute_selector.rindex('>'.freeze)] = '>>'.freeze
       end
 
-      if(query_value.is_a? Array)
+      if query_value.is_a?(Array)
         reln = arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].in(query_value)
       else
         reln = arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].eq(query_value)
       end
 
-      if(contains_nil)
+      # If a nil is present in an Array, need add a specific IS NULL comparison
+      if contains_nil
         reln = Arel::Nodes::Grouping.new(
           reln.or(arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].eq(nil))
         )
       end
-      if(check_attr_missing)
+
+      # check_attr_missing for StoreXT attributes where the default is
+      # specified as a query value
+      if check_attr_missing
         if column_type == 'hstore'.freeze
           reln = self.hstore_element_missing(column_name_segments, reln)
         else
