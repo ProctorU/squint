@@ -22,7 +22,7 @@ module SearchSemiStructuredData
     # put together a list of columns in this model
     # that are hstore, json, or jsonb and will benefit from
     # searchability
-    STRUCTURED_DATA_COLUMNS = base.columns_hash.keys.collect {|col_name|
+    HASH_DATA_COLUMNS = base.columns_hash.keys.collect {|col_name|
       if(%w( hstore json jsonb ).include?(base.columns_hash[col_name].sql_type))
         [col_name.to_sym,base.columns_hash[col_name].sql_type]
       else
@@ -30,14 +30,28 @@ module SearchSemiStructuredData
       end
     }.compact.to_h
 
+    # Args may be passed to build_where like:
+    #  build_where(jsonb_column: {key1: value1})
+    #  build_where(jsonb_column: {key1: value1}, jsonb_column: {key2: value2})
+    #  build_where(jsonb_column: {key1: value1}, regular_column: value)
+    #  build_where(jsonb_column: {key1: value1}, association: {column: value))
     ar_reln_module.send :define_method, :build_where do |*args|
-      if(args[0].is_a?(Hash) &&
-         STRUCTURED_DATA_COLUMNS[args[0].keys.first] &&
-         args[0][args[0].keys.first].is_a?(Hash))
-        [hash_field_reln(*args)]
-      else
-        super(*args)
+      return_value = []
+      args.each do |arg|
+        if(arg.is_a? Hash)
+          arg.keys.each do |key|
+            if(arg[key].is_a?(Hash) &&
+               HASH_DATA_COLUMNS[key])
+              return_value << hash_field_reln(*[key => arg[key]])
+            else
+              return_value += super(key => arg[key])
+            end
+          end
+        elsif !arg.empty?
+          return_value += super(arg)
+        end
       end
+      return_value
     end
 
     # hash_field_reln
@@ -46,7 +60,8 @@ module SearchSemiStructuredData
     # passed in bare to the eq or in operator
     ar_reln_module.send :define_method, :hash_field_reln do |*args|
       temp_attr = args[0]
-      column_type = STRUCTURED_DATA_COLUMNS[args[0].keys.first]
+      check_attr_missing = false
+      column_type = HASH_DATA_COLUMNS[args[0].keys.first]
       column_name_segments = []
       quote_char = '"'.freeze
       while(temp_attr.is_a?(Hash))
@@ -59,9 +74,10 @@ module SearchSemiStructuredData
       query_value = temp_attr
       if(respond_to? :storext_definitions)
         if storext_definitions.keys.include?(attribute_sym) &&
-           storext_definitions[attribute_sym][:opts][:default] &&
+           !storext_definitions[attribute_sym].dig(:opts,:default).nil? &&
            [temp_attr].compact.map(&:to_s).flatten.include?(storext_definitions[attribute_sym][:opts][:default].to_s)
-          temp_attr = [temp_attr,nil].flatten
+          check_attr_missing = true
+          # temp_attr = [temp_attr,nil].flatten
         end
       end
 
@@ -74,16 +90,16 @@ module SearchSemiStructuredData
 
       if temp_attr.is_a? Array
         temp_attr = temp_attr.map(&:to_s)
-      elsif ![FalseClass, TrueClass, Array, NilClass].include?(temp_attr.class)
+      elsif ![FalseClass, TrueClass, NilClass].include?(temp_attr.class)
         temp_attr = temp_attr.to_s
       end
 
-      if [FalseClass, TrueClass, Array, NilClass].include?(temp_attr.class)
+      if [Array, NilClass].include?(temp_attr.class)
         query_value = temp_attr
       else  # strings or string-like things
         query_value = Arel::Nodes::Quoted.new(temp_attr.to_s)
       end
-      column_name_segments[0] = column_name_segments[0]
+      # column_name_segments[0] = column_name_segments[0]
       attribute_selector = column_name_segments.join('->'.freeze)
 
       # JSON(B) data needs to have the last accessor be ->> instead of
@@ -106,7 +122,65 @@ module SearchSemiStructuredData
           reln.or(arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].eq(nil))
         )
       end
+      if(check_attr_missing)
+        if column_type == 'hstore'.freeze
+          reln = self.hstore_element_missing(column_name_segments, reln)
+        else
+          reln = self.jsonb_element_missing(column_name_segments, reln)
+        end
+      end
       reln
+    end
+
+    def self.jsonb_element_missing(column_name_segments,reln)
+      element = column_name_segments.pop
+      attribute_hash_column = column_name_segments.join('->'.freeze)
+      # Query generated is equals default or attribute present is null or equals false
+      #    * Is null happens the the column is null
+      #    * equals false is when the column has jsonb data, but the key doesn't exist
+      # ("posts"."storext_attributes"->>'is_awesome' = 'false' OR
+      #   (("posts"."storext_attributes" ? 'is_awesome') IS NULL OR
+      #    ("posts"."storext_attributes" ? 'is_awesome') = FALSE)
+      # )
+      reln = Arel::Nodes::Grouping.new(
+        reln.or(
+          Arel::Nodes::Grouping.new(
+            Arel::Nodes::Equality.new(
+              Arel::Nodes::Grouping.new(
+                Arel::Nodes::InfixOperation.new(Arel::Nodes::SqlLiteral.new('?'),
+                                                arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
+                                                Arel::Nodes::SqlLiteral.new(element))),nil).or(
+              Arel::Nodes::Equality.new(
+                Arel::Nodes::Grouping.new(
+                  Arel::Nodes::InfixOperation.new(Arel::Nodes::SqlLiteral.new('?'),
+                                                  arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
+                                                  Arel::Nodes::SqlLiteral.new(element))),Arel::Nodes::False.new))
+          )
+        )
+      )
+    end
+
+    def self.hstore_element_missing(column_name_segments,reln)
+      element = column_name_segments.pop
+      attribute_hash_column = column_name_segments.join('->'.freeze)
+      # Query generated is equals default or attribute present is null or equals false
+      #    * Is null happens the the column is null
+      #    * equals false is when the column has jsonb data, but the key doesn't exist
+      # ("posts"."storext_attributes"->>'is_awesome' = 'false' OR
+      #   (exists("posts"."storext_attributes", 'is_awesome') IS NULL OR
+      #    exists("posts"."storext_attributes", 'is_awesome') = FALSE)
+      # )
+      reln = Arel::Nodes::Grouping.new(
+        reln.or(
+          Arel::Nodes::Grouping.new(
+            Arel::Nodes::NamedFunction.new("exist",[arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
+                                                    Arel::Nodes::SqlLiteral.new(element)]).eq(Arel::Nodes::False.new)).or(
+            Arel::Nodes::Equality.new(
+              Arel::Nodes::NamedFunction.new("exist",[arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
+                                                      Arel::Nodes::SqlLiteral.new(element)]),nil)
+          )
+        )
+      )
     end
   end
 end

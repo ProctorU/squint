@@ -16,7 +16,13 @@ Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 # Load fixtures from the engine
 if ActiveSupport::TestCase.respond_to?(:fixture_path=)
   ActiveSupport::TestCase.fixture_path = File.expand_path("../dummy/test/fixtures", __FILE__)
-  # ActiveSupport::TestCase.fixture_path = File.expand_path("../fixtures", __FILE__)
   ActionDispatch::IntegrationTest.fixture_path = ActiveSupport::TestCase.fixture_path
   ActiveSupport::TestCase.fixtures :all
+end
+
+class ActiveSupport::TestCase
+  fixtures :all
+  # 'cuz I want to be able to login to the db and see things
+  # and there aren't many tests here anyway, so speed isn't a problem
+  self.use_transactional_fixtures = false
 end

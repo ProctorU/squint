@@ -22,17 +22,18 @@ end
 
 Assuming a table with the following structure:
 ```
-                                      Table "public.posts"
-       Column       |            Type             |                     Modifiers
---------------------+-----------------------------+----------------------------------------------------
- id                 | integer                     | not null default nextval('posts_id_seq'::regclass)
- title              | character varying           |
- body               | character varying           |
- request_info       | jsonb                       |
- properties         | hstore                      |
- storext_attributes | jsonb                       |
- created_at         | timestamp without time zone | not null
- updated_at         | timestamp without time zone | not null
+                                           Table "public.posts"
+       Column              |            Type             |                     Modifiers
+---------------------------+-----------------------------+----------------------------------------------------
+ id                        | integer                     | not null default nextval('posts_id_seq'::regclass)
+ title                     | character varying           |
+ body                      | character varying           |
+ request_info              | jsonb                       |
+ properties                | hstore                      |
+ storext_jsonb_attributes  | jsonb                       |
+ storext_hstore_attributes | jsonb                       |
+ created_at                | timestamp without time zone | not null
+ updated_at                | timestamp without time zone | not null
 Indexes:
     "posts_pkey" PRIMARY KEY, btree (id)
 ```
@@ -77,14 +78,30 @@ class Post < ActiveRecord::Base
   include Storext.model
   include SearchSemiStructuredData
 
-  store_attribute :storext_attributes, :zip_code, String, default: '90210'
-  store_attribute :storext_attributes, :friend_count, Integer, default: 0
+  store_attribute :storext_jsonb_attributes, :zip_code, String, default: '90210'
+  store_attribute :storext_jsonb_attributes, :friend_count, Integer, default: 0
 end
 ```
 
 Example using default value:
 ```ruby
 Post.where(storext_attributes: { zip_code: '90210' } )
-# SELECT "posts".* FROM "posts" WHERE ("posts"."storext_attributes"->>'zip_code' = '90210'
-#                                   OR "posts"."storext_attributes"->>'zip_code' IS NULL)
+# -- jsonb
+# SELECT "posts".* FROM "posts" WHERE ("posts"."storext_jsonb_attributes"->>'zip_code' = '90210' OR
+#                                     (("posts"."storext_jsonb_attributes" ? 'zip_code') IS NULL OR
+#                                      ("posts"."storext_jsonb_attributes" ? 'zip_code') = FALSE))
+# -- hstore
+# SELECT "posts".* FROM "posts" WHERE ("posts"."storext_hstore_attributes"->'zip_code' = '90210' OR
+#                                     ((exist("posts"."storext_hstore_attributes", 'zip_code') = FALSE) OR
+#                                       exist("posts"."storext_hstore_attributes", 'zip_code') IS NULL))
+#
+#
 ```
+If (as in the example above) the default value for the StoreXT attribute is specified, then extra
+checks for missing column ( `("posts"."storext_jsonb_attributes" ? 'zip_code') IS NULL` ) or
+missing key ( `("posts"."storext_jsonb_attributes" ? 'zip_code') = FALSE)` ) are added
+
+When non-default storext values are specified, these extra checks won't be added.
+
+The Postgres SQL for jsonb and hstore is different.   No support for checking for missing `json`
+columns exists, so don't use those with StoreXT + SearchSemiStructuredData
