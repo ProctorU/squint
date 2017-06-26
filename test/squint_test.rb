@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Squint < ActiveSupport::TestCase
+class SquintTest < ActiveSupport::TestCase
   self.use_transactional_fixtures = true
 
   # Tests that should pass for both jsonb and hstore properties
