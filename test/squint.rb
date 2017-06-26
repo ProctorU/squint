@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class SearchSemiStructuredDataTest < ActiveSupport::TestCase
+class Squint < ActiveSupport::TestCase
   self.use_transactional_fixtures = true
 
   # Tests that should pass for both jsonb and hstore properties

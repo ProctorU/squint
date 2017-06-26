@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    search_semi_structured_data (0.0.1)
+    squint (0.0.1)
       pg
       rails (~> 4.2.8)
 
@@ -152,7 +152,7 @@ DEPENDENCIES
   pry-highlight
   pry-rails
   pry-remote
-  search_semi_structured_data!
+  squint!
   storext
 
 BUNDLED WITH

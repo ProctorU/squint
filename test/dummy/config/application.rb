@@ -3,7 +3,7 @@ require File.expand_path('../boot', __FILE__)
 require 'rails/all'
 
 Bundler.require(*Rails.groups)
-require "search_semi_structured_data"
+require "squint"
 
 module Dummy
   class Application < Rails::Application

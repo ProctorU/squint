@@ -1,4 +1,4 @@
-# SearchSemiStructuredData
+# Squint
 
 DB searching inside columns containing semi-structured data like json, jsonb and hstore.
 Compatible with the awesome [storext](https://github.com/G5/storext) gem.
@@ -7,14 +7,14 @@ Compatible with the awesome [storext](https://github.com/G5/storext) gem.
 Add to your Gemfile:
 
 ```
-gem 'search_semi_structured_data'
+gem 'squint'
 ```
 
 Include it in your models:
 
 ```ruby
 class Post < ActiveRecord::Base
-  include SearchSemiStructuredData
+  include Squint
   # ...
 end
 ```
@@ -56,9 +56,9 @@ Post.where(request_info: { referer: ['http://example.com/one',nil] } )
 #                                   OR "posts"."request_info"->>'referer' IS NULL)
 ```
 
-SearchSemiStructuredData only operates on json, jsonb and hstore columns.   ActiveRecord
+Squint only operates on json, jsonb and hstore columns.   ActiveRecord
 will throw a StatementInvalid exception like always if the column type is unsupported by
-SearchSemiStructuredData.
+Squint.
 
 ```ruby
 Post.where(:title => { not_there: "any value will do" } )
@@ -76,7 +76,7 @@ Assuming the database schema above and a model like so:
 ```ruby
 class Post < ActiveRecord::Base
   include Storext.model
-  include SearchSemiStructuredData
+  include Squint
 
   store_attribute :storext_jsonb_attributes, :zip_code, String, default: '90210'
   store_attribute :storext_jsonb_attributes, :friend_count, Integer, default: 0
@@ -104,4 +104,4 @@ missing key ( `("posts"."storext_jsonb_attributes" ? 'zip_code') = FALSE)` ) are
 When non-default storext values are specified, these extra checks won't be added.
 
 The Postgres SQL for jsonb and hstore is different.   No support for checking for missing `json`
-columns exists, so don't use those with StoreXT + SearchSemiStructuredData
+columns exists, so don't use those with StoreXT + Squint

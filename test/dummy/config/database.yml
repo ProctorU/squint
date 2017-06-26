@@ -6,9 +6,9 @@ default: &default
 
 development:
   <<: *default
-  database: search_semi_structured_data_development
+  database: squint_development
 
 test:
   <<: *default
-  database: search_semi_structured_data_test
+  database: squint_test
 

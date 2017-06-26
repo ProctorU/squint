@@ -1,19 +1,19 @@
 require 'active_support/concern'
-module SearchSemiStructuredData
+module Squint
   extend ActiveSupport::Concern
   include ::ActiveRecord::QueryMethods
   included do |base|
     #
-    # This bit of code inserts a SHIM module between SearchSemiStructuredData
+    # This bit of code inserts a SHIM module between Squint
     # and the base so that the base can override these  methods if needed
     # You can see where the shim module shows up with
     # Post.ancestors
     # shamefully copied from http://thepugautomatic.com/2013/07/dsom/
     #
-    if const_defined?(:SearchSemiStructuredDataMod,_search_ancestors = false)
-      mod = const_get(:SearchSemiStructuredDataMod)
+    if const_defined?(:Squint,_search_ancestors = false)
+      mod = const_get(:Squint)
     else
-      mod = const_set(:SearchSemiStructuredDataMod,Module.new)
+      mod = const_set(:Squint,Module.new)
       include mod
     end
 

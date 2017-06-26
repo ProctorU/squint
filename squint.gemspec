@@ -1,12 +1,12 @@
 $:.push File.expand_path("../lib", __FILE__)
 
 # Maintain your gem's version:
-require "search_semi_structured_data/version"
+require "squint/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "search_semi_structured_data"
-  s.version     = SearchSemiStructuredData::VERSION
+  s.name        = "squint"
+  s.version     = Squint::VERSION
   s.authors     = ["David H. Wilkins"]
   s.email       = ["dwilkins@proctoru.com"]
   s.homepage    = "http://status.proctoru.com"

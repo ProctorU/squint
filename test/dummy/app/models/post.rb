@@ -1,6 +1,6 @@
 class Post < ActiveRecord::Base
   include Storext.model
-  include SearchSemiStructuredData
+  include Squint
 
   store_attribute :storext_jsonb_attributes, :jsonb_zip_code, String, default: '90210'
   store_attribute :storext_jsonb_attributes, :jsonb_friend_count, Integer, default: 0
