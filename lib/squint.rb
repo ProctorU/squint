@@ -31,7 +31,7 @@ module Squint
               memo += super(key => arg[key])
             end
           end
-        elsif !arg.empty?
+        elsif arg.present?
           memo += super(arg)
         end
         memo
