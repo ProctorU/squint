@@ -97,7 +97,7 @@ end
 
 Example using StoreXT with a default value:
 ```ruby
-Post.where(storext_attributes: { zip_code: '90210' } )
+Post.where(storext_jsonb_attributes: { zip_code: '90210' } )
 # -- jsonb
 # SELECT "posts".* FROM "posts" WHERE ("posts"."storext_jsonb_attributes"->>'zip_code' = '90210' OR
 #                                     (("posts"."storext_jsonb_attributes" ? 'zip_code') IS NULL OR
