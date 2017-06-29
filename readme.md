@@ -71,6 +71,18 @@ LINE 1: SELECT COUNT(*) FROM "posts" WHERE "title"."not_there" = 'an...
 : SELECT COUNT(*) FROM "posts" WHERE "title"."not_there" = 'any value will do'
 ```
 
+## Performance
+To get the most performance out searching jsonb/hstore attributes, add a GIN (preferred) or
+GIST index to those columns.   Find out more
+[here](https://www.postgresql.org/docs/9.5/static/textsearch-indexes.html)
+
+TL;DR:
+
+SQL: 'CREATE INDEX name ON table USING GIN (column);'
+
+Rails Migration: `add_index(:table, :column_name, using: 'gin')`
+
+
 ## Storext attributes
 Assuming the database schema above and a model like so:
 ```ruby
@@ -105,3 +117,14 @@ When non-default storext values are specified, these extra checks won't be added
 
 The Postgres SQL for jsonb and hstore is different.   No support for checking for missing `json`
 columns exists, so don't use those with StoreXT + Squint
+
+## Developing Squint
+
+1. Thank you!
+1. Clone the repository
+1. `bundle`
+1. `bundle exec rake --rakefile test/dummy/Rakefile db:setup` # create the db for tests
+1. `bundle exec rake`   # run the tests
+1. make your changes in a thoughtfully named branch
+1. ensure good test coverage
+1. submit a Pull Request
