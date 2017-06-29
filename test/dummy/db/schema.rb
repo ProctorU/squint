@@ -28,4 +28,9 @@ ActiveRecord::Schema.define(version: 20170512185941) do
     t.datetime "updated_at",                null: false
   end
 
+  add_index "posts", ["properties"], name: "index_posts_on_properties", using: :gin
+  add_index "posts", ["request_info"], name: "index_posts_on_request_info", using: :gin
+  add_index "posts", ["storext_hstore_attributes"], name: "index_posts_on_storext_hstore_attributes", using: :gin
+  add_index "posts", ["storext_jsonb_attributes"], name: "index_posts_on_storext_jsonb_attributes", using: :gin
+
 end

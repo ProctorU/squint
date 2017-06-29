@@ -10,13 +10,11 @@ gemspec
 # Git. Remember to move these dependencies to your gemspec before releasing
 # your gem to rubygems.org.
 
-# To use a debugger
-# gem 'byebug', group: [:development, :test]
-
-gem 'pry-byebug', group: [:development, :test]
-gem 'pry-highlight', group: [:development, :test]
-gem 'pry-rails', group: [:development, :test]
-gem 'pry-remote', group: [:development, :test]
-gem 'minitest-focus', group: [:development, :test], require: false
+gem 'minitest-focus', group: %i[development test], require: false
+gem 'pry-byebug', group: %i[development test]
+gem 'pry-highlight', group: %i[development test]
+gem 'pry-rails', group: %i[development test]
+gem 'pry-remote', group: %i[development test]
+gem 'rubocop', require: false
 
 gem 'storext'
