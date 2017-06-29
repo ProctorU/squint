@@ -10,7 +10,7 @@ module Squint
     # put together a list of columns in this model
     # that are hstore, json, or jsonb and will benefit from
     # searchability
-    HASH_DATA_COLUMNS = base.columns_hash.keys.collect do |col_name|
+    HASH_DATA_COLUMNS = base.columns_hash.keys.map do |col_name|
       if %w[hstore json jsonb].include?(base.columns_hash[col_name].sql_type)
         [col_name.to_sym, base.columns_hash[col_name].sql_type]
       end
@@ -130,18 +130,20 @@ module Squint
           Arel::Nodes::Grouping.new(
             Arel::Nodes::Equality.new(
               Arel::Nodes::Grouping.new(
-                Arel::Nodes::InfixOperation
-                  .new(Arel::Nodes::SqlLiteral.new('?'),
-                       arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
-                       Arel::Nodes::SqlLiteral.new(element))
+                Arel::Nodes::InfixOperation.new(
+                  Arel::Nodes::SqlLiteral.new('?'),
+                  arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
+                  Arel::Nodes::SqlLiteral.new(element)
+                )
               ), nil
             ).or(
               Arel::Nodes::Equality.new(
                 Arel::Nodes::Grouping.new(
-                  Arel::Nodes::InfixOperation
-                    .new(Arel::Nodes::SqlLiteral.new('?'),
-                         arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
-                         Arel::Nodes::SqlLiteral.new(element))
+                  Arel::Nodes::InfixOperation.new(
+                    Arel::Nodes::SqlLiteral.new('?'),
+                    arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
+                    Arel::Nodes::SqlLiteral.new(element)
+                  )
                 ), Arel::Nodes::False.new
               )
             )
@@ -154,9 +156,9 @@ module Squint
       return false unless respond_to?(:storext_definitions)
       if storext_definitions.keys.include?(attribute_sym) &&
          !storext_definitions[attribute_sym].dig(:opts, :default).nil? &&
-         [temp_attr].compact.map(&:to_s)
-           .flatten
-           .include?(storext_definitions[attribute_sym][:opts][:default].to_s)
+         [temp_attr].compact.map(&:to_s).
+           flatten.
+           include?(storext_definitions[attribute_sym][:opts][:default].to_s)
         true
       end
     end
