@@ -3,9 +3,7 @@
 AllCops:
   Exclude:
     - 'docs/**'
-    - 'docs/**'
     - 'test/dummy/db/schema.rb'
-
 Layout/AlignArray:
   Enabled: false
 Layout/AlignHash:
