@@ -7,8 +7,8 @@ require "squint/version"
 Gem::Specification.new do |s|
   s.name        = "squint"
   s.version     = Squint::VERSION
-  s.authors     = ["David H. Wilkins"]
-  s.email       = ["dwilkins@proctoru.com"]
+  s.authors     = ["David H. Wilkins", "Justin Licata"]
+  s.email       = ["dwilkins@proctoru.com", "jlicata@proctoru.com"]
   s.homepage    = "https://github.com/ProctorU/squint"
   s.summary     = "Search PostgreSQL jsonb and hstore columns"
   s.description = "Use rails semantics to search keys and values inside " \
