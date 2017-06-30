@@ -4,24 +4,14 @@ require 'active_support/concern'
 module Squint
   extend ActiveSupport::Concern
   include ::ActiveRecord::QueryMethods
-  included do |base|
-    ar_reln_module = base::ActiveRecord_Relation
 
-    # put together a list of columns in this model
-    # that are hstore, json, or jsonb and will benefit from
-    # searchability
-    HASH_DATA_COLUMNS = base.columns_hash.keys.map do |col_name|
-      if %w[hstore json jsonb].include?(base.columns_hash[col_name].sql_type)
-        [col_name.to_sym, base.columns_hash[col_name].sql_type]
-      end
-    end.compact.to_h
-
+  module WhereMethods
     # Args may be passed to build_where like:
     #  build_where(jsonb_column: {key1: value1})
     #  build_where(jsonb_column: {key1: value1}, jsonb_column: {key2: value2})
     #  build_where(jsonb_column: {key1: value1}, regular_column: value)
     #  build_where(jsonb_column: {key1: value1}, association: {column: value))
-    ar_reln_module.send :define_method, :build_where do |*args|
+    def build_where *args
       args.inject([]) do |memo, arg|
         if arg.is_a?(Hash)
           arg.keys.each do |key|
@@ -42,7 +32,7 @@ module Squint
     # return an Arel object with the appropriate query
     # Strings want to be a SQL Literal, other things can be
     # passed in bare to the eq or in operator
-    ar_reln_module.send :define_method, :hash_field_reln do |*args|
+    def hash_field_reln *args
       temp_attr = args[0]
       contains_nil = false
       column_type = HASH_DATA_COLUMNS[args[0].keys.first]
@@ -113,6 +103,28 @@ module Squint
                end
       end
       reln
+    end
+  end
+
+  included do |base|
+    ar_reln_module = base::ActiveRecord_Relation
+    ar_association_module = base::ActiveRecord_AssociationRelation
+
+    # put together a list of columns in this model
+    # that are hstore, json, or jsonb and will benefit from
+    # searchability
+    HASH_DATA_COLUMNS = base.columns_hash.keys.map do |col_name|
+      if %w[hstore json jsonb].include?(base.columns_hash[col_name].sql_type)
+        [col_name.to_sym, base.columns_hash[col_name].sql_type]
+      end
+    end.compact.to_h
+
+    ar_reln_module.class_eval do
+      prepend WhereMethods
+    end
+
+    ar_association_module.class_eval do
+      prepend WhereMethods
     end
 
     def self.jsonb_element_missing(column_name_segments, reln)
