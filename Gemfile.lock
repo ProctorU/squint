@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    squint (0.0.1)
+    squint (0.0.2)
       pg
       rails (~> 4.2.8)
 
