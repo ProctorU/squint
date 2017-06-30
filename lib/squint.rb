@@ -12,8 +12,13 @@ module Squint
     #  build_where(jsonb_column: {key1: value1}, regular_column: value)
     #  build_where(jsonb_column: {key1: value1}, association: {column: value))
     def build_where(*args)
-      args.inject([]) do |memo, arg|
-        if arg.is_a?(Hash)
+      save_args = []
+      reln = args.inject([]) do |memo, arg|
+        if(!save_args.empty?)
+          save_args << arg
+          memo += super(save_args)
+          save_args = []
+        elsif arg.is_a?(Hash)
           arg.keys.each do |key|
             if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
               memo << hash_field_reln(key => arg[key])
@@ -22,10 +27,16 @@ module Squint
             end
           end
         elsif arg.present?
-          memo += super(arg)
+          if arg.is_a? String
+            save_args << arg
+          else
+            memo += super(arg)
+          end
         end
         memo
       end
+      reln += super(save_args) unless save_args.empty?
+      reln
     end
 
     # hash_field_reln
