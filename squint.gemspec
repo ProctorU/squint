@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = Squint::VERSION
   s.authors     = ["David H. Wilkins"]
   s.email       = ["dwilkins@proctoru.com"]
-  s.homepage    = "http://status.proctoru.com"
+  s.homepage    = "https://github.com/ProctorU"
   s.summary     = "Search PostgreSQL jsonb and hstore columns"
   s.description = "Use rails semantics to search keys and values inside " \
                   "PostgreSQL jsonb, json and hstore columns.  Compatible " \

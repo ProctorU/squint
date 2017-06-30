@@ -1,5 +1,6 @@
 .bundle/
 .byebug_history
+.ruby-version
 log/*.log
 pkg/
 test/dummy/db/*.sqlite3
