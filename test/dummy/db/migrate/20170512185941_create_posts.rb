@@ -10,6 +10,10 @@ class CreatePosts < ActiveRecord::Migration
       t.hstore :storext_hstore_attributes
 
       t.timestamps null: false
+      t.index :request_info, using: 'GIN'
+      t.index :properties, using: 'GIN'
+      t.index :storext_jsonb_attributes, using: 'GIN'
+      t.index :storext_hstore_attributes, using: 'GIN'
     end
   end
 end
