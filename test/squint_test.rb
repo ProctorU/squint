@@ -104,7 +104,7 @@ class SquintTest < ActiveSupport::TestCase
     reln = Post.where(storext_jsonb_attributes: { "jsonb_friend_count": 11 }).
              where("posts.title = ?", 'With Storext is aweesome not default title')
     assert_nothing_raised do
-      assert_equal 1,reln.count
+      assert_equal 1, reln.count
     end
   end
 end

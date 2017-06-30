@@ -14,7 +14,7 @@ module Squint
     def build_where(*args)
       save_args = []
       reln = args.inject([]) do |memo, arg|
-        if(!save_args.empty?)
+        if !save_args.empty?
           save_args << arg
           memo += super(save_args)
           save_args = []
