@@ -107,4 +107,13 @@ class SquintTest < ActiveSupport::TestCase
       assert_equal 1, reln.count
     end
   end
+  test "handles multiple non-hash parameters" do
+    reln = Post.where(storext_jsonb_attributes: { "jsonb_friend_count": 11 }).
+             where("posts.id between ? and ?",
+                   posts(:with_storext_is_awesome_not_default).id,
+                   posts(:with_storext_is_awesome_not_default).id+1)
+    assert_nothing_raised do
+      assert_equal 1, reln.count
+    end
+  end
 end
