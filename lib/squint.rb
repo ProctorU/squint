@@ -14,11 +14,7 @@ module Squint
     def build_where(*args)
       save_args = []
       reln = args.inject([]) do |memo, arg|
-        if !save_args.empty?
-          save_args << arg
-          memo += super(save_args)
-          save_args = []
-        elsif arg.is_a?(Hash)
+        if arg.is_a?(Hash)
           arg.keys.each do |key|
             if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
               memo << hash_field_reln(key => arg[key])
@@ -27,15 +23,11 @@ module Squint
             end
           end
         elsif arg.present?
-          if arg.is_a? String
-            save_args << arg
-          else
-            memo += super(arg)
-          end
+          save_args << arg
         end
         memo
       end
-      reln += super(save_args) unless save_args.empty?
+      reln += super(*save_args) unless save_args.empty?
       reln
     end
 
