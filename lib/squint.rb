@@ -11,7 +11,7 @@ module Squint
     #  build_where(jsonb_column: {key1: value1}, jsonb_column: {key2: value2})
     #  build_where(jsonb_column: {key1: value1}, regular_column: value)
     #  build_where(jsonb_column: {key1: value1}, association: {column: value))
-    def build_where *args
+    def build_where(*args)
       args.inject([]) do |memo, arg|
         if arg.is_a?(Hash)
           arg.keys.each do |key|
@@ -32,7 +32,7 @@ module Squint
     # return an Arel object with the appropriate query
     # Strings want to be a SQL Literal, other things can be
     # passed in bare to the eq or in operator
-    def hash_field_reln *args
+    def hash_field_reln(*args)
       temp_attr = args[0]
       contains_nil = false
       column_type = HASH_DATA_COLUMNS[args[0].keys.first]
