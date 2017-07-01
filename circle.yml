@@ -4,6 +4,10 @@ machine:
   timezone:
     America/Chicago
 
+test:
+  pre:
+    - gem install bundler
+
 database:
   override:
     - bundle exec rake --rakefile test/dummy/Rakefile db:setup
