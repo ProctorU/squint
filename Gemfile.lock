@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    squint (0.0.3)
+    squint (0.0.4)
       pg
       rails (~> 4.2.8)
 
@@ -73,6 +73,8 @@ GEM
     mime-types-data (3.2016.0521)
     mini_portile2 (2.1.0)
     minitest (5.10.2)
+    minitest-ci (3.2.0)
+      minitest (>= 5.0.6)
     minitest-focus (1.1.2)
       minitest (>= 4, < 6)
     nokogiri (1.7.2)
@@ -163,6 +165,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  minitest-ci
   minitest-focus
   pry-byebug
   pry-highlight
