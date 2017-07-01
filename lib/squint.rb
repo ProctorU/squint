@@ -178,6 +178,16 @@ module Squint
       end
     end
 
+    def self.hstore_element_exists(element, attribute_hash_column, value)
+      Arel::Nodes::Equality.new(
+        Arel::Nodes::NamedFunction.new(
+          "exist",
+          [arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
+           Arel::Nodes::SqlLiteral.new(element)]
+        ), value
+      )
+    end
+
     def self.hstore_element_missing(column_name_segments, reln)
       element = column_name_segments.pop
       attribute_hash_column = column_name_segments.join('->'.freeze)
@@ -191,19 +201,9 @@ module Squint
       Arel::Nodes::Grouping.new(
         reln.or(
           Arel::Nodes::Grouping.new(
-            Arel::Nodes::NamedFunction.new(
-              "exist",
-              [arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
-               Arel::Nodes::SqlLiteral.new(element)]
-            ).eq(Arel::Nodes::False.new)
+            hstore_element_exists(element, attribute_hash_column, Arel::Nodes::False.new)
           ).or(
-            Arel::Nodes::Equality.new(
-              Arel::Nodes::NamedFunction.new(
-                "exist",
-                [arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
-                 Arel::Nodes::SqlLiteral.new(element)]
-              ), nil
-            )
+            hstore_element_exists(element, attribute_hash_column, nil)
           )
         )
       )
