@@ -130,6 +130,18 @@ module Squint
       prepend WhereMethods
     end
 
+    def self.jsonb_element_equality(element, attribute_hash_column, value)
+      Arel::Nodes::Equality.new(
+        Arel::Nodes::Grouping.new(
+          Arel::Nodes::InfixOperation.new(
+            Arel::Nodes::SqlLiteral.new('?'),
+            arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
+            Arel::Nodes::SqlLiteral.new(element)
+          )
+        ), value
+      )
+    end
+
     def self.jsonb_element_missing(column_name_segments, reln)
       element = column_name_segments.pop
       attribute_hash_column = column_name_segments.join('->'.freeze)
@@ -143,24 +155,8 @@ module Squint
       Arel::Nodes::Grouping.new(
         reln.or(
           Arel::Nodes::Grouping.new(
-            Arel::Nodes::Equality.new(
-              Arel::Nodes::Grouping.new(
-                Arel::Nodes::InfixOperation.new(
-                  Arel::Nodes::SqlLiteral.new('?'),
-                  arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
-                  Arel::Nodes::SqlLiteral.new(element)
-                )
-              ), nil
-            ).or(
-              Arel::Nodes::Equality.new(
-                Arel::Nodes::Grouping.new(
-                  Arel::Nodes::InfixOperation.new(
-                    Arel::Nodes::SqlLiteral.new('?'),
-                    arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
-                    Arel::Nodes::SqlLiteral.new(element)
-                  )
-                ), Arel::Nodes::False.new
-              )
+            jsonb_element_equality(element, attribute_hash_column, nil).or(
+              jsonb_element_equality(element, attribute_hash_column, Arel::Nodes::False.new)
             )
           )
         )
