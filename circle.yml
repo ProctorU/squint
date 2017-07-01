@@ -1,0 +1,9 @@
+machine:
+  ruby:
+    version: 2.3.3
+  timezone:
+    America/Chicago
+
+database:
+  override:
+    - bundle exec rake --rakefile test/dummy/Rakefile db:setup
