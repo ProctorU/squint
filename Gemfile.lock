@@ -1,9 +1,9 @@
 PATH
   remote: .
   specs:
-    squint (0.0.4)
+    squint (0.0.3)
       pg
-      rails (~> 4.2.8)
+      rails (>= 4.2.8)
 
 GEM
   remote: https://rubygems.org/

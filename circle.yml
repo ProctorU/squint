@@ -1,9 +1,13 @@
 machine:
-  ruby:
-    version: 2.3.3
   timezone:
     America/Chicago
 
+dependencies:
+  override:
+    - 'rvm-exec 2.3.4 bundle install'
+    - 'rvm-exec 2.4.1 bundle install'
+
 database:
   override:
-    - bundle exec rake --rakefile test/dummy/Rakefile db:setup
+    - 'rvm-exec 2.3.4 bundle exec rake --rakefile test/dummy/Rakefile db:setup'
+    - 'rvm-exec 2.4.1 bundle exec rake --rakefile test/dummy/Rakefile db:setup'
