@@ -9,7 +9,7 @@ dependencies:
 
 database:
   override:
-    - 'bundle exec rake --rakefile test/dummy/Rakefile db:setup'
+    - 'rvm-exec 2.3.4 bundle exec rake --rakefile test/dummy/Rakefile db:setup'
 
 test:
   override:
