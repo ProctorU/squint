@@ -10,6 +10,7 @@ gemspec
 # Git. Remember to move these dependencies to your gemspec before releasing
 # your gem to rubygems.org.
 
+gem 'minitest-ci'   # for CircleCI
 gem 'minitest-focus', group: %i[development test], require: false
 gem 'pry-byebug', group: %i[development test]
 gem 'pry-highlight', group: %i[development test]
