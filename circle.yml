@@ -8,7 +8,7 @@ dependencies:
 
 database:
   override:
-    - 'bundle exec appraisel rake --rakefile test/dummy/Rakefile db:setup'
+    - 'bundle exec appraisal rake --rakefile test/dummy/Rakefile db:setup'
 
 test:
   override:
