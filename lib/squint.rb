@@ -14,51 +14,36 @@ module Squint
     #  build_where(jsonb_column: {key1: value1}, regular_column: value)
     #  build_where(jsonb_column: {key1: value1}, association: {column: value))
     if ActiveRecord::VERSION::STRING > '5'
-      def build(*args)
-        # For Rails 5, we end up monkey patching WhereClauseFactory for everyone
-        # so need to return super if our methods aren't on the AR class
-        return super(*args) unless klass.respond_to?(:squint_hash_field_reln)
-        save_args = []
-        reln = args.inject([]) do |memo, arg|
-          if arg.is_a?(Hash)
-            arg.keys.each do |key|
-              if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
-                memo << klass.squint_hash_field_reln(key => arg[key])
-              else
-                save_args << {  key => arg[key] }
-              end
+      method_name = :build
+    elsif ActiveRecord::VERSION::STRING < '5'
+      method_name = :build_where
+    end
+    self.send :define_method, method_name do |*args|
+      # For Rails 5, we end up monkey patching WhereClauseFactory for everyone
+      # so need to return super if our methods aren't on the AR class
+      # doesn't hurt for 4.2.x either
+      return super(*args) unless klass.respond_to?(:squint_hash_field_reln)
+      save_args = []
+      reln = args.inject([]) do |memo, arg|
+        if arg.is_a?(Hash)
+          arg.keys.each do |key|
+            if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
+              memo << klass.squint_hash_field_reln(key => arg[key])
+            else
+              save_args << {  key => arg[key] }
             end
-          elsif arg.present?
-            save_args << arg
           end
-          memo
+        elsif arg.present?
+          save_args << arg
         end
+        memo
+      end
+      if ActiveRecord::VERSION::STRING > '5'
         reln = ActiveRecord::Relation::WhereClause.new(reln, [])
         save_args << [] if save_args.size == 1
-        reln += super(*save_args) unless save_args.empty?
-        reln
       end
-    end
-    if ActiveRecord::VERSION::STRING < '5'
-      def build_where(*args)
-        save_args = []
-        reln = args.inject([]) do |memo, arg|
-          if arg.is_a?(Hash)
-            arg.keys.each do |key|
-              if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
-                memo << klass.squint_hash_field_reln(key => arg[key])
-              else
-                memo += super(key => arg[key])
-              end
-            end
-          elsif arg.present?
-            save_args << arg
-          end
-          memo
-        end
-        reln += super(*save_args) unless save_args.empty?
-        reln
-      end
+      reln += super(*save_args) unless save_args.empty?
+      reln
     end
   end
 
@@ -67,6 +52,7 @@ module Squint
       ar_reln_module = base::ActiveRecord_Relation
       ar_association_module = base::ActiveRecord_AssociationRelation
     elsif ActiveRecord::VERSION::STRING > '5.1'
+      # ActiveRecord_Relation is now a private_constant in 5.1.x
       ar_reln_module = base.relation_delegate_class(ActiveRecord::Relation)::WhereClauseFactory
       ar_association_module = nil
     elsif ActiveRecord::VERSION::STRING > '5.0'
