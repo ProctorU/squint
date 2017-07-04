@@ -3,15 +3,13 @@ machine:
     America/Chicago
 
 dependencies:
-  override:
-    - 'rvm-exec 2.3.4 bundle install'
-    - 'rvm-exec 2.4.1 bundle install'
+  post:
+    - 'bundle exec appraisal install'
 
 database:
   override:
-    - 'rvm-exec 2.3.4 bundle exec rake --rakefile test/dummy/Rakefile db:setup'
+    - 'bundle exec appraisel rake --rakefile test/dummy/Rakefile db:setup'
 
 test:
   override:
-    - 'rvm-exec 2.3.4 bundle exec rake'
-    - 'rvm-exec 2.4.1 bundle exec rake'
+    - 'bundle exec appraisal rake'
