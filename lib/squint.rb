@@ -8,51 +8,57 @@ module Squint
   end
 
   module WhereMethods
-    # Args may be passed to build_where like:
+    # Args may be passed to build/build_where like:
     #  build_where(jsonb_column: {key1: value1})
     #  build_where(jsonb_column: {key1: value1}, jsonb_column: {key2: value2})
     #  build_where(jsonb_column: {key1: value1}, regular_column: value)
     #  build_where(jsonb_column: {key1: value1}, association: {column: value))
-    def build(*args)
-      save_args = []
-      reln = args.inject([]) do |memo, arg|
-        if arg.is_a?(Hash)
-          arg.keys.each do |key|
-            if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
-              memo << klass.hash_field_reln(key => arg[key])
-            else
-              save_args << {  key => arg[key] }
+    if ActiveRecord::VERSION::STRING > '5'
+      def build(*args)
+        # For Rails 5, we end up monkey patching WhereClauseFactory for everyone
+        # so need to return super if our methods aren't on the AR class
+        return super(*args) unless klass.respond_to?(:squint_hash_field_reln)
+        save_args = []
+        reln = args.inject([]) do |memo, arg|
+          if arg.is_a?(Hash)
+            arg.keys.each do |key|
+              if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
+                memo << klass.squint_hash_field_reln(key => arg[key])
+              else
+                save_args << {  key => arg[key] }
+              end
             end
+          elsif arg.present?
+            save_args << arg
           end
-        elsif arg.present?
-          save_args << arg
+          memo
         end
-        memo
+        reln = ActiveRecord::Relation::WhereClause.new(reln, [])
+        save_args << [] if save_args.size == 1
+        reln += super(*save_args) unless save_args.empty?
+        reln
       end
-      reln = ActiveRecord::Relation::WhereClause.new(reln, [])
-      save_args << [] if save_args.size == 1
-      reln += super(*save_args) unless save_args.empty?
-      reln
     end
-
-    def build_where(*args)
-      save_args = []
-      reln = args.inject([]) do |memo, arg|
-        if arg.is_a?(Hash)
-          arg.keys.each do |key|
-            if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
-              memo << klass.hash_field_reln(key => arg[key])
-            else
-              memo += super(key => arg[key])
+    if ActiveRecord::VERSION::STRING < '5'
+      def build_where(*args)
+        save_args = []
+        reln = args.inject([]) do |memo, arg|
+          if arg.is_a?(Hash)
+            arg.keys.each do |key|
+              if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
+                memo << klass.squint_hash_field_reln(key => arg[key])
+              else
+                memo += super(key => arg[key])
+              end
             end
+          elsif arg.present?
+            save_args << arg
           end
-        elsif arg.present?
-          save_args << arg
+          memo
         end
-        memo
+        reln += super(*save_args) unless save_args.empty?
+        reln
       end
-      reln += super(*save_args) unless save_args.empty?
-      reln
     end
   end
 
@@ -60,7 +66,10 @@ module Squint
     if ActiveRecord::VERSION::STRING < '5'
       ar_reln_module = base::ActiveRecord_Relation
       ar_association_module = base::ActiveRecord_AssociationRelation
-    elsif ActiveRecord::VERSION::STRING > '5'
+    elsif ActiveRecord::VERSION::STRING > '5.1'
+      ar_reln_module = base.relation_delegate_class(ActiveRecord::Relation)::WhereClauseFactory
+      ar_association_module = nil
+    elsif ActiveRecord::VERSION::STRING > '5.0'
       ar_reln_module = base::ActiveRecord_Relation::WhereClauseFactory
       ar_association_module = nil
       # ar_association_module = base::ActiveRecord_AssociationRelation
@@ -83,11 +92,11 @@ module Squint
       prepend WhereMethods
     end
 
-    # hash_field_reln
+    # squint_hash_field_reln
     # return an Arel object with the appropriate query
     # Strings want to be a SQL Literal, other things can be
     # passed in bare to the eq or in operator
-    def self.hash_field_reln(*args)
+    def self.squint_hash_field_reln(*args)
       temp_attr = args[0]
       contains_nil = false
       column_type = HASH_DATA_COLUMNS[args[0].keys.first]
@@ -152,9 +161,9 @@ module Squint
       # specified as a query value
       if check_attr_missing
         reln = if column_type == 'hstore'.freeze
-                 hstore_element_missing(column_name_segments, reln)
+                 squint_hstore_element_missing(column_name_segments, reln)
                else
-                 jsonb_element_missing(column_name_segments, reln)
+                 squint_jsonb_element_missing(column_name_segments, reln)
                end
       end
       reln
@@ -171,7 +180,7 @@ module Squint
       end
     end
 
-    def self.hstore_element_exists(element, attribute_hash_column, value)
+    def self.squint_hstore_element_exists(element, attribute_hash_column, value)
       Arel::Nodes::Equality.new(
         Arel::Nodes::NamedFunction.new(
           "exist",
@@ -181,7 +190,7 @@ module Squint
       )
     end
 
-    def self.hstore_element_missing(column_name_segments, reln)
+    def self.squint_hstore_element_missing(column_name_segments, reln)
       element = column_name_segments.pop
       attribute_hash_column = column_name_segments.join('->'.freeze)
       # Query generated is equals default or attribute present is null or equals false
@@ -194,15 +203,15 @@ module Squint
       Arel::Nodes::Grouping.new(
         reln.or(
           Arel::Nodes::Grouping.new(
-            hstore_element_exists(element, attribute_hash_column, Arel::Nodes::False.new)
+            squint_hstore_element_exists(element, attribute_hash_column, Arel::Nodes::False.new)
           ).or(
-            hstore_element_exists(element, attribute_hash_column, nil)
+            squint_hstore_element_exists(element, attribute_hash_column, nil)
           )
         )
       )
     end
 
-    def self.jsonb_element_equality(element, attribute_hash_column, value)
+    def self.squint_jsonb_element_equality(element, attribute_hash_column, value)
       Arel::Nodes::Equality.new(
         Arel::Nodes::Grouping.new(
           Arel::Nodes::InfixOperation.new(
@@ -214,7 +223,7 @@ module Squint
       )
     end
 
-    def self.jsonb_element_missing(column_name_segments, reln)
+    def self.squint_jsonb_element_missing(column_name_segments, reln)
       element = column_name_segments.pop
       attribute_hash_column = column_name_segments.join('->'.freeze)
       # Query generated is equals default or attribute present is null or equals false
@@ -227,8 +236,8 @@ module Squint
       Arel::Nodes::Grouping.new(
         reln.or(
           Arel::Nodes::Grouping.new(
-            jsonb_element_equality(element, attribute_hash_column, nil).or(
-              jsonb_element_equality(element, attribute_hash_column, Arel::Nodes::False.new)
+            squint_jsonb_element_equality(element, attribute_hash_column, nil).or(
+              squint_jsonb_element_equality(element, attribute_hash_column, Arel::Nodes::False.new)
             )
           )
         )

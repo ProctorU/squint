@@ -15,6 +15,6 @@ appraise 'rails-5-0-4' do
 end
 
 # Doesn't work yet
-#appraise 'rails-5-1-2' do
-# gem "rails", "5.1.2"
-#end
+appraise 'rails-5-1-2' do
+ gem "rails", "5.1.2"
+end
