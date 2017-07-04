@@ -79,10 +79,8 @@ module Squint
       prepend WhereMethods
     end
 
-    if ar_association_module
-      ar_association_module.class_eval do
-        prepend WhereMethods
-      end
+    ar_association_module&.class_eval do
+      prepend WhereMethods
     end
 
     # hash_field_reln
