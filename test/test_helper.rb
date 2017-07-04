@@ -27,7 +27,7 @@ class ActiveSupport::TestCase
   # and there aren't many tests here anyway, so speed isn't a problem
   if ActiveRecord::VERSION::STRING < '5'
     self.use_transactional_fixtures = false
-  elsif ActiveRecord::VERSION::STRING >'5'
+  elsif ActiveRecord::VERSION::STRING > '5'
     self.use_transactional_tests = false
   end
 end

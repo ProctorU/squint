@@ -22,7 +22,6 @@ module Squint
               memo << klass.hash_field_reln(key => arg[key])
             else
               save_args << {  key => arg[key] }
-              #memo += super(arg)
             end
           end
         elsif arg.present?
@@ -30,7 +29,7 @@ module Squint
         end
         memo
       end
-      reln = ActiveRecord::Relation::WhereClause.new(reln,[])
+      reln = ActiveRecord::Relation::WhereClause.new(reln, [])
       save_args << [] if save_args.size == 1
       reln += super(*save_args) unless save_args.empty?
       reln
@@ -55,8 +54,6 @@ module Squint
       reln += super(*save_args) unless save_args.empty?
       reln
     end
-
-
   end
 
   included do |base|
@@ -82,7 +79,7 @@ module Squint
       prepend WhereMethods
     end
 
-    if(ar_association_module)
+    if ar_association_module
       ar_association_module.class_eval do
         prepend WhereMethods
       end
@@ -206,6 +203,7 @@ module Squint
         )
       )
     end
+
     def self.jsonb_element_equality(element, attribute_hash_column, value)
       Arel::Nodes::Equality.new(
         Arel::Nodes::Grouping.new(
