@@ -1,5 +1,5 @@
 PATH
-  remote: .
+  remote: ..
   specs:
     squint (0.0.3)
       pg
@@ -182,6 +182,7 @@ DEPENDENCIES
   pry-highlight
   pry-rails
   pry-remote
+  rails (= 5.0.4)
   rubocop
   squint!
   storext

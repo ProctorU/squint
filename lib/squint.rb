@@ -3,7 +3,9 @@ require 'active_support/concern'
 # Squint json, jsonb, hstore queries
 module Squint
   extend ActiveSupport::Concern
-  include ::ActiveRecord::QueryMethods
+  if ActiveRecord::VERSION::STRING < '5'
+    include ::ActiveRecord::QueryMethods
+  end
 
   module WhereMethods
     # Args may be passed to build_where like:
@@ -11,6 +13,29 @@ module Squint
     #  build_where(jsonb_column: {key1: value1}, jsonb_column: {key2: value2})
     #  build_where(jsonb_column: {key1: value1}, regular_column: value)
     #  build_where(jsonb_column: {key1: value1}, association: {column: value))
+    def build(*args)
+      save_args = []
+      reln = args.inject([]) do |memo, arg|
+        if arg.is_a?(Hash)
+          arg.keys.each do |key|
+            if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
+              memo << hash_field_reln(key => arg[key])
+            else
+              save_args << {  key => arg[key] }
+              #memo += super(arg)
+            end
+          end
+        elsif arg.present?
+          save_args << arg
+        end
+        memo
+      end
+      reln = ActiveRecord::Relation::WhereClause.new(reln,[])
+      save_args << [] if save_args.size == 1
+      reln += super(*save_args) unless save_args.empty?
+      reln
+    end
+
     def build_where(*args)
       save_args = []
       reln = args.inject([]) do |memo, arg|
@@ -84,15 +109,15 @@ module Squint
       end
 
       reln = if query_value.is_a?(Array)
-               arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].in(query_value)
+               klass.arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].in(query_value)
              else
-               arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].eq(query_value)
+               klass.arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].eq(query_value)
              end
 
       # If a nil is present in an Array, need add a specific IS NULL comparison
       if contains_nil
         reln = Arel::Nodes::Grouping.new(
-          reln.or(arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].eq(nil))
+          reln.or(klass.arel_table[Arel::Nodes::SqlLiteral.new(attribute_selector)].eq(nil))
         )
       end
 
@@ -107,42 +132,61 @@ module Squint
       end
       reln
     end
-  end
 
-  included do |base|
-    ar_reln_module = base::ActiveRecord_Relation
-    ar_association_module = base::ActiveRecord_AssociationRelation
-
-    # put together a list of columns in this model
-    # that are hstore, json, or jsonb and will benefit from
-    # searchability
-    HASH_DATA_COLUMNS = base.columns_hash.keys.map do |col_name|
-      if %w[hstore json jsonb].include?(base.columns_hash[col_name].sql_type)
-        [col_name.to_sym, base.columns_hash[col_name].sql_type]
+    def squint_storext_default?(temp_attr, attribute_sym)
+      return false unless klass.respond_to?(:storext_definitions)
+      if klass.storext_definitions.keys.include?(attribute_sym) &&
+         !klass.storext_definitions[attribute_sym].dig(:opts, :default).nil? &&
+         [temp_attr].compact.map(&:to_s).
+           flatten.
+           include?(klass.storext_definitions[attribute_sym][:opts][:default].to_s)
+        true
       end
-    end.compact.to_h
-
-    ar_reln_module.class_eval do
-      prepend WhereMethods
     end
 
-    ar_association_module.class_eval do
-      prepend WhereMethods
+    def hstore_element_exists(element, attribute_hash_column, value)
+      Arel::Nodes::Equality.new(
+        Arel::Nodes::NamedFunction.new(
+          "exist",
+          [klass.arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
+           Arel::Nodes::SqlLiteral.new(element)]
+        ), value
+      )
     end
 
-    def self.jsonb_element_equality(element, attribute_hash_column, value)
+    def hstore_element_missing(column_name_segments, reln)
+      element = column_name_segments.pop
+      attribute_hash_column = column_name_segments.join('->'.freeze)
+      # Query generated is equals default or attribute present is null or equals false
+      #    * Is null happens the the column is null
+      #    * equals false is when the column has jsonb data, but the key doesn't exist
+      # ("posts"."storext_attributes"->>'is_awesome' = 'false' OR
+      #   (exists("posts"."storext_attributes", 'is_awesome') IS NULL OR
+      #    exists("posts"."storext_attributes", 'is_awesome') = FALSE)
+      # )
+      Arel::Nodes::Grouping.new(
+        reln.or(
+          Arel::Nodes::Grouping.new(
+            hstore_element_exists(element, attribute_hash_column, Arel::Nodes::False.new)
+          ).or(
+            hstore_element_exists(element, attribute_hash_column, nil)
+          )
+        )
+      )
+    end
+    def jsonb_element_equality(element, attribute_hash_column, value)
       Arel::Nodes::Equality.new(
         Arel::Nodes::Grouping.new(
           Arel::Nodes::InfixOperation.new(
             Arel::Nodes::SqlLiteral.new('?'),
-            arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
+            klass.arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
             Arel::Nodes::SqlLiteral.new(element)
           )
         ), value
       )
     end
 
-    def self.jsonb_element_missing(column_name_segments, reln)
+    def jsonb_element_missing(column_name_segments, reln)
       element = column_name_segments.pop
       attribute_hash_column = column_name_segments.join('->'.freeze)
       # Query generated is equals default or attribute present is null or equals false
@@ -163,46 +207,38 @@ module Squint
       )
     end
 
-    def self.squint_storext_default?(temp_attr, attribute_sym)
-      return false unless respond_to?(:storext_definitions)
-      if storext_definitions.keys.include?(attribute_sym) &&
-         !storext_definitions[attribute_sym].dig(:opts, :default).nil? &&
-         [temp_attr].compact.map(&:to_s).
-           flatten.
-           include?(storext_definitions[attribute_sym][:opts][:default].to_s)
-        true
+
+  end
+
+  included do |base|
+    if ActiveRecord::VERSION::STRING < '5'
+      ar_reln_module = base::ActiveRecord_Relation
+      ar_association_module = base::ActiveRecord_AssociationRelation
+    elsif ActiveRecord::VERSION::STRING > '5'
+      ar_reln_module = base::ActiveRecord_Relation::WhereClauseFactory
+      ar_association_module = nil
+      # ar_association_module = base::ActiveRecord_AssociationRelation
+    end
+
+    # put together a list of columns in this model
+    # that are hstore, json, or jsonb and will benefit from
+    # searchability
+    HASH_DATA_COLUMNS = base.columns_hash.keys.map do |col_name|
+      if %w[hstore json jsonb].include?(base.columns_hash[col_name].sql_type)
+        [col_name.to_sym, base.columns_hash[col_name].sql_type]
+      end
+    end.compact.to_h
+
+    ar_reln_module.class_eval do
+      prepend WhereMethods
+    end
+
+    if(ar_association_module)
+      ar_association_module.class_eval do
+        prepend WhereMethods
       end
     end
 
-    def self.hstore_element_exists(element, attribute_hash_column, value)
-      Arel::Nodes::Equality.new(
-        Arel::Nodes::NamedFunction.new(
-          "exist",
-          [arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
-           Arel::Nodes::SqlLiteral.new(element)]
-        ), value
-      )
-    end
 
-    def self.hstore_element_missing(column_name_segments, reln)
-      element = column_name_segments.pop
-      attribute_hash_column = column_name_segments.join('->'.freeze)
-      # Query generated is equals default or attribute present is null or equals false
-      #    * Is null happens the the column is null
-      #    * equals false is when the column has jsonb data, but the key doesn't exist
-      # ("posts"."storext_attributes"->>'is_awesome' = 'false' OR
-      #   (exists("posts"."storext_attributes", 'is_awesome') IS NULL OR
-      #    exists("posts"."storext_attributes", 'is_awesome') = FALSE)
-      # )
-      Arel::Nodes::Grouping.new(
-        reln.or(
-          Arel::Nodes::Grouping.new(
-            hstore_element_exists(element, attribute_hash_column, Arel::Nodes::False.new)
-          ).or(
-            hstore_element_exists(element, attribute_hash_column, nil)
-          )
-        )
-      )
-    end
   end
 end

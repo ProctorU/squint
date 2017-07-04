@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class SquintTest < ActiveSupport::TestCase
-  self.use_transactional_fixtures = true
 
   # Tests that should pass for both jsonb and hstore properties
   %i[request_info properties].each do |prop_name|
@@ -45,8 +44,10 @@ class SquintTest < ActiveSupport::TestCase
     end
   end
 
-  [[:storext_jsonb_attributes, 'jsonb'],
-   [:storext_hstore_attributes, 'hstore']].each do |prop_name, prefix|
+  [
+    [:storext_jsonb_attributes, 'jsonb'],
+    # [:storext_hstore_attributes, 'hstore']
+  ].each do |prop_name, prefix|
     test "detects present #{prop_name}" do
       reln = Post.where(prop_name => { "#{prefix}_zip_code": '35124' })
       # puts reln.to_sql
@@ -76,6 +77,7 @@ class SquintTest < ActiveSupport::TestCase
 
   [[:storext_jsonb_attributes, 'jsonb'],
    [:storext_hstore_attributes, 'hstore']].each do |prop_name, prefix|
+
     test "detects default #{prop_name}" do
       reln = Post.where(prop_name => { "#{prefix}_zip_code": '90210' })
       # puts reln.to_sql
@@ -100,6 +102,7 @@ class SquintTest < ActiveSupport::TestCase
       assert_equal Post.all.count - 1, reln.count, reln.to_sql
     end
   end
+
   test "handles string parameters" do
     reln = Post.where(storext_jsonb_attributes: { "jsonb_friend_count": 11 }).
              where("posts.title = ?", 'With Storext is aweesome not default title')
@@ -107,6 +110,7 @@ class SquintTest < ActiveSupport::TestCase
       assert_equal 1, reln.count
     end
   end
+
   test "handles multiple non-hash parameters" do
     reln = Post.where(storext_jsonb_attributes: { "jsonb_friend_count": 11 }).
              where("posts.id between ? and ?",
