@@ -74,7 +74,7 @@ module Squint
       prepend WhereMethods
     end
 
-    ar_association_module&.class_eval do
+    ar_association_module.try(:class_eval) do
       prepend WhereMethods
     end
 
