@@ -19,7 +19,6 @@ database:
 
 test:
   override:
-    - 'rvm-exec 2.1 bundle exec appraisal rails-4-2-9 rake'
     - 'rvm-exec 2.2.2 bundle exec appraisal rake'
     - 'rvm-exec 2.3 bundle exec appraisal rake'
     - 'rvm-exec 2.4 bundle exec appraisal rake'
