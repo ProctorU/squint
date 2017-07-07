@@ -158,7 +158,8 @@ module Squint
     def self.squint_storext_default?(temp_attr, attribute_sym)
       return false unless respond_to?(:storext_definitions)
       if storext_definitions.keys.include?(attribute_sym) &&
-         !storext_definitions[attribute_sym].dig(:opts, :default).nil? &&
+         !(storext_definitions[attribute_sym][:opts] &&
+           storext_definitions[attribute_sym][:opts][:default]).nil? &&
          [temp_attr].compact.map(&:to_s).
            flatten.
            include?(storext_definitions[attribute_sym][:opts][:default].to_s)
