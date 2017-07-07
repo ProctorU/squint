@@ -15,7 +15,7 @@ dependencies:
 
 database:
   override:
-    - 'bundle exec appraisal rails-4-2-8 rake --rakefile test/dummy/Rakefile db:setup'
+    - 'rvm-exec 2.3 bundle exec appraisal rails-4-2-8 rake --rakefile test/dummy/Rakefile db:setup'
 
 test:
   override:
