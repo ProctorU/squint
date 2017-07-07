@@ -18,7 +18,7 @@ module Squint
     elsif ActiveRecord::VERSION::STRING < '5'
       method_name = :build_where
     end
-    self.send :define_method, method_name do |*args|
+    send :define_method, method_name do |*args|
       # For Rails 5, we end up monkey patching WhereClauseFactory for everyone
       # so need to return super if our methods aren't on the AR class
       # doesn't hurt for 4.2.x either
