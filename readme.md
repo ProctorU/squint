@@ -1,5 +1,5 @@
 # Squint
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors)
 
 DB searching inside columns containing semi-structured data like json, jsonb and hstore.
 Compatible with the awesome [storext](https://github.com/G5/storext) gem.
@@ -135,8 +135,8 @@ columns exists, so don't use those with StoreXT + Squint
 Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds/all-contributors#emoji-key)):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-| [<img src="https://avatars0.githubusercontent.com/u/3933204?v=3" width="100px;"/><br /><sub>Justin Licata</sub>](http://justinlicata.com)<br />[💻](https://github.com/ProctorU/squint/commits?author=licatajustin "Code") [🎨](#design-licatajustin "Design") [📖](https://github.com/ProctorU/squint/commits?author=licatajustin "Documentation") [👀](#review-licatajustin "Reviewed Pull Requests") | [<img src="https://avatars2.githubusercontent.com/u/708692?v=3" width="100px;"/><br /><sub>Ryan T. Hosford</sub>](https://github.com/rthbound)<br />[💻](https://github.com/ProctorU/squint/commits?author=rthbound "Code") |
-| :---: | :---: |
+| [<img src="https://avatars0.githubusercontent.com/u/3933204?v=3" width="100px;"/><br /><sub>Justin Licata</sub>](http://justinlicata.com)<br />[💻](https://github.com/ProctorU/squint/commits?author=licatajustin "Code") [🎨](#design-licatajustin "Design") [📖](https://github.com/ProctorU/squint/commits?author=licatajustin "Documentation") [👀](#review-licatajustin "Reviewed Pull Requests") | [<img src="https://avatars2.githubusercontent.com/u/708692?v=3" width="100px;"/><br /><sub>Ryan T. Hosford</sub>](https://github.com/rthbound)<br />[💻](https://github.com/ProctorU/squint/commits?author=rthbound "Code") | [<img src="https://avatars2.githubusercontent.com/u/864581?v=3" width="100px;"/><br /><sub>Kevin Brown</sub>](https://github.com/chevinbrown)<br />[🎨](#design-chevinbrown "Design") [👀](#review-chevinbrown "Reviewed Pull Requests") |
+| :---: | :---: | :---: |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind welcome!

@@ -27,6 +27,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "chevinbrown",
+      "name": "Kevin Brown",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/864581?v=3",
+      "profile": "https://github.com/chevinbrown",
+      "contributions": [
+        "design",
+        "review"
+      ]
     }
   ]
 }
