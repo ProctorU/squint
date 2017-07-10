@@ -18,6 +18,15 @@
         "doc",
         "review"
       ]
+    },
+    {
+      "login": "rthbound",
+      "name": "Ryan T. Hosford",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/708692?v=3",
+      "profile": "https://github.com/rthbound",
+      "contributions": [
+        "code"
+      ]
     }
   ]
 }
