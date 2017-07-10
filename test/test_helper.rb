@@ -25,5 +25,9 @@ class ActiveSupport::TestCase
   fixtures :all
   # 'cuz I want to be able to login to the db and see things
   # and there aren't many tests here anyway, so speed isn't a problem
-  self.use_transactional_fixtures = false
+  if ActiveRecord::VERSION::STRING < '5'
+    self.use_transactional_fixtures = false
+  elsif ActiveRecord::VERSION::STRING > '5'
+    self.use_transactional_tests = false
+  end
 end

@@ -3,23 +3,34 @@ require 'active_support/concern'
 # Squint json, jsonb, hstore queries
 module Squint
   extend ActiveSupport::Concern
-  include ::ActiveRecord::QueryMethods
+  if ActiveRecord::VERSION::STRING < '5'
+    include ::ActiveRecord::QueryMethods
+  end
 
   module WhereMethods
-    # Args may be passed to build_where like:
+    # Args may be passed to build/build_where like:
     #  build_where(jsonb_column: {key1: value1})
     #  build_where(jsonb_column: {key1: value1}, jsonb_column: {key2: value2})
     #  build_where(jsonb_column: {key1: value1}, regular_column: value)
     #  build_where(jsonb_column: {key1: value1}, association: {column: value))
-    def build_where(*args)
+    if ActiveRecord::VERSION::STRING > '5'
+      method_name = :build
+    elsif ActiveRecord::VERSION::STRING < '5'
+      method_name = :build_where
+    end
+    send :define_method, method_name do |*args|
+      # For Rails 5, we end up monkey patching WhereClauseFactory for everyone
+      # so need to return super if our methods aren't on the AR class
+      # doesn't hurt for 4.2.x either
+      return super(*args) unless klass.respond_to?(:squint_hash_field_reln)
       save_args = []
       reln = args.inject([]) do |memo, arg|
         if arg.is_a?(Hash)
           arg.keys.each do |key|
             if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
-              memo << hash_field_reln(key => arg[key])
+              memo << klass.squint_hash_field_reln(key => arg[key])
             else
-              memo += super(key => arg[key])
+              save_args << {  key => arg[key] }
             end
           end
         elsif arg.present?
@@ -27,15 +38,51 @@ module Squint
         end
         memo
       end
+      if ActiveRecord::VERSION::STRING > '5'
+        reln = ActiveRecord::Relation::WhereClause.new(reln, [])
+        save_args << [] if save_args.size == 1
+      end
       reln += super(*save_args) unless save_args.empty?
       reln
     end
+  end
 
-    # hash_field_reln
+  included do |base|
+    if ActiveRecord::VERSION::STRING < '5'
+      ar_reln_module = base::ActiveRecord_Relation
+      ar_association_module = base::ActiveRecord_AssociationRelation
+    elsif ActiveRecord::VERSION::STRING > '5.1'
+      # ActiveRecord_Relation is now a private_constant in 5.1.x
+      ar_reln_module = base.relation_delegate_class(ActiveRecord::Relation)::WhereClauseFactory
+      ar_association_module = nil
+    elsif ActiveRecord::VERSION::STRING > '5.0'
+      ar_reln_module = base::ActiveRecord_Relation::WhereClauseFactory
+      ar_association_module = nil
+      # ar_association_module = base::ActiveRecord_AssociationRelation
+    end
+
+    # put together a list of columns in this model
+    # that are hstore, json, or jsonb and will benefit from
+    # searchability
+    HASH_DATA_COLUMNS = base.columns_hash.keys.map do |col_name|
+      if %w[hstore json jsonb].include?(base.columns_hash[col_name].sql_type)
+        [col_name.to_sym, base.columns_hash[col_name].sql_type]
+      end
+    end.compact.to_h
+
+    ar_reln_module.class_eval do
+      prepend WhereMethods
+    end
+
+    ar_association_module.try(:class_eval) do
+      prepend WhereMethods
+    end
+
+    # squint_hash_field_reln
     # return an Arel object with the appropriate query
     # Strings want to be a SQL Literal, other things can be
     # passed in bare to the eq or in operator
-    def hash_field_reln(*args)
+    def self.squint_hash_field_reln(*args)
       temp_attr = args[0]
       contains_nil = false
       column_type = HASH_DATA_COLUMNS[args[0].keys.first]
@@ -100,73 +147,19 @@ module Squint
       # specified as a query value
       if check_attr_missing
         reln = if column_type == 'hstore'.freeze
-                 hstore_element_missing(column_name_segments, reln)
+                 squint_hstore_element_missing(column_name_segments, reln)
                else
-                 jsonb_element_missing(column_name_segments, reln)
+                 squint_jsonb_element_missing(column_name_segments, reln)
                end
       end
       reln
-    end
-  end
-
-  included do |base|
-    ar_reln_module = base::ActiveRecord_Relation
-    ar_association_module = base::ActiveRecord_AssociationRelation
-
-    # put together a list of columns in this model
-    # that are hstore, json, or jsonb and will benefit from
-    # searchability
-    HASH_DATA_COLUMNS = base.columns_hash.keys.map do |col_name|
-      if %w[hstore json jsonb].include?(base.columns_hash[col_name].sql_type)
-        [col_name.to_sym, base.columns_hash[col_name].sql_type]
-      end
-    end.compact.to_h
-
-    ar_reln_module.class_eval do
-      prepend WhereMethods
-    end
-
-    ar_association_module.class_eval do
-      prepend WhereMethods
-    end
-
-    def self.jsonb_element_equality(element, attribute_hash_column, value)
-      Arel::Nodes::Equality.new(
-        Arel::Nodes::Grouping.new(
-          Arel::Nodes::InfixOperation.new(
-            Arel::Nodes::SqlLiteral.new('?'),
-            arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
-            Arel::Nodes::SqlLiteral.new(element)
-          )
-        ), value
-      )
-    end
-
-    def self.jsonb_element_missing(column_name_segments, reln)
-      element = column_name_segments.pop
-      attribute_hash_column = column_name_segments.join('->'.freeze)
-      # Query generated is equals default or attribute present is null or equals false
-      #    * Is null happens when the the whole column is null
-      #    * equals false is when the column has jsonb data, but the key doesn't exist
-      # ("posts"."storext_attributes"->>'is_awesome' = 'false' OR
-      #   (("posts"."storext_attributes" ? 'is_awesome') IS NULL OR
-      #    ("posts"."storext_attributes" ? 'is_awesome') = FALSE)
-      # )
-      Arel::Nodes::Grouping.new(
-        reln.or(
-          Arel::Nodes::Grouping.new(
-            jsonb_element_equality(element, attribute_hash_column, nil).or(
-              jsonb_element_equality(element, attribute_hash_column, Arel::Nodes::False.new)
-            )
-          )
-        )
-      )
     end
 
     def self.squint_storext_default?(temp_attr, attribute_sym)
       return false unless respond_to?(:storext_definitions)
       if storext_definitions.keys.include?(attribute_sym) &&
-         !storext_definitions[attribute_sym].dig(:opts, :default).nil? &&
+         !(storext_definitions[attribute_sym][:opts] &&
+           storext_definitions[attribute_sym][:opts][:default]).nil? &&
          [temp_attr].compact.map(&:to_s).
            flatten.
            include?(storext_definitions[attribute_sym][:opts][:default].to_s)
@@ -174,7 +167,7 @@ module Squint
       end
     end
 
-    def self.hstore_element_exists(element, attribute_hash_column, value)
+    def self.squint_hstore_element_exists(element, attribute_hash_column, value)
       Arel::Nodes::Equality.new(
         Arel::Nodes::NamedFunction.new(
           "exist",
@@ -184,7 +177,7 @@ module Squint
       )
     end
 
-    def self.hstore_element_missing(column_name_segments, reln)
+    def self.squint_hstore_element_missing(column_name_segments, reln)
       element = column_name_segments.pop
       attribute_hash_column = column_name_segments.join('->'.freeze)
       # Query generated is equals default or attribute present is null or equals false
@@ -197,9 +190,42 @@ module Squint
       Arel::Nodes::Grouping.new(
         reln.or(
           Arel::Nodes::Grouping.new(
-            hstore_element_exists(element, attribute_hash_column, Arel::Nodes::False.new)
+            squint_hstore_element_exists(element, attribute_hash_column, Arel::Nodes::False.new)
           ).or(
-            hstore_element_exists(element, attribute_hash_column, nil)
+            squint_hstore_element_exists(element, attribute_hash_column, nil)
+          )
+        )
+      )
+    end
+
+    def self.squint_jsonb_element_equality(element, attribute_hash_column, value)
+      Arel::Nodes::Equality.new(
+        Arel::Nodes::Grouping.new(
+          Arel::Nodes::InfixOperation.new(
+            Arel::Nodes::SqlLiteral.new('?'),
+            arel_table[Arel::Nodes::SqlLiteral.new(attribute_hash_column)],
+            Arel::Nodes::SqlLiteral.new(element)
+          )
+        ), value
+      )
+    end
+
+    def self.squint_jsonb_element_missing(column_name_segments, reln)
+      element = column_name_segments.pop
+      attribute_hash_column = column_name_segments.join('->'.freeze)
+      # Query generated is equals default or attribute present is null or equals false
+      #    * Is null happens when the the whole column is null
+      #    * equals false is when the column has jsonb data, but the key doesn't exist
+      # ("posts"."storext_attributes"->>'is_awesome' = 'false' OR
+      #   (("posts"."storext_attributes" ? 'is_awesome') IS NULL OR
+      #    ("posts"."storext_attributes" ? 'is_awesome') = FALSE)
+      # )
+      Arel::Nodes::Grouping.new(
+        reln.or(
+          Arel::Nodes::Grouping.new(
+            squint_jsonb_element_equality(element, attribute_hash_column, nil).or(
+              squint_jsonb_element_equality(element, attribute_hash_column, Arel::Nodes::False.new)
+            )
           )
         )
       )
