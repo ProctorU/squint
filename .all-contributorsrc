@@ -65,6 +65,22 @@
         "design",
         "review"
       ]
+    },
+    {
+      "login": "dwilkins",
+      "name": "David H. Wilkins",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/97011?v=3",
+      "profile": "http://conecuh.com",
+      "contributions": [
+        "question",
+        "bug",
+        "code",
+        "design",
+        "doc",
+        "example",
+        "review",
+        "test"
+      ]
     }
   ]
 }
