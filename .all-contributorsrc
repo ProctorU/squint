@@ -37,6 +37,15 @@
         "design",
         "review"
       ]
+    },
+    {
+      "login": "TheJayWright",
+      "name": "Jay Wright",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/19173815?v=3",
+      "profile": "https://github.com/TheJayWright",
+      "contributions": [
+        "review"
+      ]
     }
   ]
 }
