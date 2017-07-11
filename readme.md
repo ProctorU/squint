@@ -1,10 +1,32 @@
-# Squint
+<p align="center">
+  <a href="https://twitter.com/ProctorUEng">
+    <img src="https://s3-us-west-2.amazonaws.com/dev-team-resources/squint-wordmark.svg" width=198 height=72>
+  </a>
+
+  <p align="center">
+    DB searching inside columns containing semi-structured data like json, jsonb and hstore.
+    Compatible with the awesome [storext](https://github.com/G5/storext) gem.
+  </p>
+</p>
+
+<br>
+
+
+## Table of contents
+
+- [Status](#status)
+- [Quick start](#quick-start)
+- [Performance](#performance)
+- [Storext attributes](#storext-attributes)
+- [Developing](#developing)
+- [Contributors](#contributors)
+- [Credits](#credits)
+
+## Status
 [![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors)
 [![CircleCI](https://circleci.com/gh/ProctorU/squint.svg?style=svg)](https://circleci.com/gh/ProctorU/squint)
 
-DB searching inside columns containing semi-structured data like json, jsonb and hstore.
-Compatible with the awesome [storext](https://github.com/G5/storext) gem.
-
+## Quick Start
 
 Add to your Gemfile:
 
@@ -20,7 +42,6 @@ class Post < ActiveRecord::Base
   # ...
 end
 ```
-
 
 Assuming a table with the following structure:
 ```
@@ -40,7 +61,6 @@ Indexes:
     "posts_pkey" PRIMARY KEY, btree (id)
 ```
 
-## Basic Usage
 In your code use queries like:
 ```ruby
 Post.where(properties: { referer: 'http://example.com/one' } )
@@ -63,7 +83,7 @@ will throw a StatementInvalid exception like always if the column type is unsupp
 Squint.
 
 ```ruby
-Post.where(:title => { not_there: "any value will do" } )
+Post.where(title: { not_there: "any value will do" } )
 ```
 
 ```
@@ -120,7 +140,7 @@ When non-default storext values are specified, these extra checks won't be added
 The Postgres SQL for jsonb and hstore is different.   No support for checking for missing `json`
 columns exists, so don't use those with StoreXT + Squint
 
-## Developing Squint
+## Developing
 
 1. Thank you!
 1. Clone the repository
@@ -143,12 +163,15 @@ Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind welcome!
 
 ## Credits
--------
 
-![ProctorU](https://secure.gravatar.com/avatar/844db1a678a48873c0871a02d1b1a7f3.png?d=retro&r=PG&s=100) ProctorU
+<p align="center">
+  <a href="https://twitter.com/ProctorUEng">
+    <img src="https://s3-us-west-2.amazonaws.com/dev-team-resources/procki-eyes.svg" width=108 height=72>
+  </a>
 
-Squint is maintained and funded by [ProctorU][proctor_u]
+  <h3 align="center">ProctorU</h3>
 
-The names and logos for ProctorU are trademarks of ProctorU
-
-[proctor_u]: https://www.proctoru.com
+  <p align="center">
+    A simple online proctoring service that allows you to take exams or certification tests at home.
+  </p>
+</p>
