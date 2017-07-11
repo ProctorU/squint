@@ -3,7 +3,7 @@
     <img src="https://s3-us-west-2.amazonaws.com/dev-team-resources/squint-wordmark.svg" width=198 height=72>
   </a>
 
-  <p align="center">
+  <p align="center" style="width:70%;margin:0 auto;">
     DB searching inside columns containing semi-structured data like json, jsonb and hstore.
     Compatible with the awesome <a href="https://github.com/G5/storext">storext</a> gem.
   </p>
