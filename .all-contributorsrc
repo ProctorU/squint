@@ -8,42 +8,12 @@
   "commit": true,
   "contributors": [
     {
-      "login": "licatajustin",
-      "name": "Justin Licata",
-      "avatar_url": "https://avatars0.githubusercontent.com/u/3933204?v=3",
-      "profile": "http://justinlicata.com",
-      "contributions": [
-        "code",
-        "design",
-        "doc",
-        "review"
-      ]
-    },
-    {
-      "login": "rthbound",
-      "name": "Ryan T. Hosford",
-      "avatar_url": "https://avatars2.githubusercontent.com/u/708692?v=3",
-      "profile": "https://github.com/rthbound",
-      "contributions": [
-        "code"
-      ]
-    },
-    {
       "login": "chevinbrown",
       "name": "Kevin Brown",
       "avatar_url": "https://avatars2.githubusercontent.com/u/864581?v=3",
       "profile": "https://github.com/chevinbrown",
       "contributions": [
         "design",
-        "review"
-      ]
-    },
-    {
-      "login": "TheJayWright",
-      "name": "Jay Wright",
-      "avatar_url": "https://avatars3.githubusercontent.com/u/19173815?v=3",
-      "profile": "https://github.com/TheJayWright",
-      "contributions": [
         "review"
       ]
     },
@@ -67,6 +37,27 @@
       ]
     },
     {
+      "login": "rthbound",
+      "name": "Ryan T. Hosford",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/708692?v=3",
+      "profile": "https://github.com/rthbound",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "licatajustin",
+      "name": "Justin Licata",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/3933204?v=3",
+      "profile": "http://justinlicata.com",
+      "contributions": [
+        "code",
+        "design",
+        "doc",
+        "review"
+      ]
+    },
+    {
       "login": "dwilkins",
       "name": "David H. Wilkins",
       "avatar_url": "https://avatars2.githubusercontent.com/u/97011?v=3",
@@ -80,6 +71,15 @@
         "example",
         "review",
         "test"
+      ]
+    },
+    {
+      "login": "TheJayWright",
+      "name": "Jay Wright",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/19173815?v=3",
+      "profile": "https://github.com/TheJayWright",
+      "contributions": [
+        "review"
       ]
     }
   ]
