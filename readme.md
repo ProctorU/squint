@@ -1,5 +1,6 @@
 # Squint
 [![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors)
+[![CircleCI](https://circleci.com/gh/ProctorU/squint.svg?style=svg)](https://circleci.com/gh/ProctorU/squint)
 
 DB searching inside columns containing semi-structured data like json, jsonb and hstore.
 Compatible with the awesome [storext](https://github.com/G5/storext) gem.
