@@ -4,7 +4,7 @@
   </a>
 
   <p align="center">
-    Search PostgreSQL `jsonb` and `hstore` columns.
+    Search PostgreSQL <code>jsonb</code> and <code>hstore</code> columns.
   </p>
 </p>
 
