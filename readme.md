@@ -4,15 +4,15 @@
   </a>
 
   <p align="center">
-    <div style="width:70%;margin:0 auto;">
-      DB searching inside columns containing semi-structured data like json,
-      jsonb and hstore. <strong>Compatible with the awesome
-      <a href="https://github.com/G5/storext">storext</a> gem</strong>.
-    </div>
+    Search PostgreSQL `jsonb` and `hstore` columns.
   </p>
 </p>
 
 <br>
+
+> Full database searching inside columns containing semi-structured data like `json`,
+`jsonb` and `hstore`. <strong>Compatible with the awesome
+<a href="https://github.com/G5/storext">storext</a> gem</strong>.
 
 ## Table of contents
 
