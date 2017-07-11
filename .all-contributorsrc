@@ -1,0 +1,86 @@
+{
+  "projectName": "squint",
+  "projectOwner": "ProctorU",
+  "files": [
+    "readme.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "contributors": [
+    {
+      "login": "chevinbrown",
+      "name": "Kevin Brown",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/864581?v=3",
+      "profile": "https://github.com/chevinbrown",
+      "contributions": [
+        "design",
+        "review"
+      ]
+    },
+    {
+      "login": "king601",
+      "name": "Andrew Fomera",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/1741179?v=3",
+      "profile": "http://andrewfomera.com",
+      "contributions": [
+        "review"
+      ]
+    },
+    {
+      "login": "Jaehdawg",
+      "name": "Matthew Jaeh",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/1785682?v=3",
+      "profile": "https://github.com/Jaehdawg",
+      "contributions": [
+        "design",
+        "review"
+      ]
+    },
+    {
+      "login": "rthbound",
+      "name": "Ryan T. Hosford",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/708692?v=3",
+      "profile": "https://github.com/rthbound",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "licatajustin",
+      "name": "Justin Licata",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/3933204?v=3",
+      "profile": "https://twitter.com/justinlicata",
+      "contributions": [
+        "code",
+        "design",
+        "doc",
+        "review"
+      ]
+    },
+    {
+      "login": "dwilkins",
+      "name": "David H. Wilkins",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/97011?v=3",
+      "profile": "http://conecuh.com",
+      "contributions": [
+        "question",
+        "bug",
+        "code",
+        "design",
+        "doc",
+        "example",
+        "review",
+        "test"
+      ]
+    },
+    {
+      "login": "TheJayWright",
+      "name": "Jay Wright",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/19173815?v=3",
+      "profile": "https://github.com/TheJayWright",
+      "contributions": [
+        "review"
+      ]
+    }
+  ]
+}

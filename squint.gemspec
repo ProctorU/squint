@@ -16,7 +16,8 @@ Gem::Specification.new do |s|
                   "with StoreXT attributes."
   s.license     = "MIT"
 
-  s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "readme.md"]
+  s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE",
+                "Rakefile", "readme.md", ".all-contributorsrc"]
   s.test_files = Dir["test/**/*"]
 
   s.add_dependency "rails", ">= 4.2.8"
