@@ -29,7 +29,7 @@
 
 Add to your Gemfile:
 
-```
+```ruby
 gem 'squint'
 ```
 
