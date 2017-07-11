@@ -5,12 +5,11 @@
 
   <p align="center">
     DB searching inside columns containing semi-structured data like json, jsonb and hstore.
-    Compatible with the awesome [storext](https://github.com/G5/storext) gem.
+    Compatible with the awesome <a href="https://github.com/G5/storext">storext</a> gem.
   </p>
 </p>
 
 <br>
-
 
 ## Table of contents
 
@@ -164,12 +163,16 @@ This project follows the [all-contributors](https://github.com/kentcdodds/all-co
 
 ## Credits
 
+Squint is maintained and funded by [ProctorU](https://twitter.com/ProctorUEng).
+
+<br>
+
 <p align="center">
   <a href="https://twitter.com/ProctorUEng">
     <img src="https://s3-us-west-2.amazonaws.com/dev-team-resources/procki-eyes.svg" width=108 height=72>
   </a>
 
-  <h3 align="center">ProctorU</h3>
+  <h3 align="center">[ProctorU](https://twitter.com/ProctorUEng)</h3>
 
   <p align="center">
     A simple online proctoring service that allows you to take exams or certification tests at home.
