@@ -81,6 +81,16 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "kmiracle86",
+      "name": "Kyle Miracle",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/24704300?v=4",
+      "profile": "https://github.com/kmiracle86",
+      "contributions": [
+        "bug",
+        "review"
+      ]
     }
   ]
 }
