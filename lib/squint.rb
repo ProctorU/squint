@@ -41,10 +41,8 @@ module Squint
       end
       if ActiveRecord::VERSION::STRING > '5'
         reln = ActiveRecord::Relation::WhereClause.new(reln, [])
-        save_args << [] if save_args.size == 1
-      else
-        save_args << [] if save_args.size == 1
       end
+      save_args << [] if save_args.size == 1
       reln += super(*save_args) unless save_args.empty?
       reln
     end
