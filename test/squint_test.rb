@@ -120,4 +120,16 @@ class SquintTest < ActiveSupport::TestCase
       assert_equal 1, reln.count
     end
   end
+
+  #
+  # Make sure that build_where isn't passed more than 2 parameters
+  # There was a bug...
+  #
+  test 'with find by lotsa things' do
+    assert_nothing_raised do
+      Post.find_by(id: 1, title: 'sumpthin',
+                   body: 'sumpthin else',
+                   created_at: '2015-01-01')
+    end
+  end
 end
