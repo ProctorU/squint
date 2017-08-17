@@ -132,5 +132,4 @@ class SquintTest < ActiveSupport::TestCase
                    created_at: '2015-01-01')
     end
   end
-
 end
