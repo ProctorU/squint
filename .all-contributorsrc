@@ -27,6 +27,15 @@
       ]
     },
     {
+      "login": "rthbound",
+      "name": "Ryan T. Hosford",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/708692?v=3",
+      "profile": "https://github.com/rthbound",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
       "login": "Jaehdawg",
       "name": "Matthew Jaeh",
       "avatar_url": "https://avatars2.githubusercontent.com/u/1785682?v=3",
@@ -34,15 +43,6 @@
       "contributions": [
         "design",
         "review"
-      ]
-    },
-    {
-      "login": "rthbound",
-      "name": "Ryan T. Hosford",
-      "avatar_url": "https://avatars2.githubusercontent.com/u/708692?v=3",
-      "profile": "https://github.com/rthbound",
-      "contributions": [
-        "code"
       ]
     },
     {
@@ -54,6 +54,16 @@
         "code",
         "design",
         "doc",
+        "review"
+      ]
+    },
+    {
+      "login": "kmiracle86",
+      "name": "Kyle Miracle",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/24704300?v=4",
+      "profile": "https://github.com/kmiracle86",
+      "contributions": [
+        "bug",
         "review"
       ]
     },
@@ -79,16 +89,6 @@
       "avatar_url": "https://avatars3.githubusercontent.com/u/19173815?v=3",
       "profile": "https://github.com/TheJayWright",
       "contributions": [
-        "review"
-      ]
-    },
-    {
-      "login": "kmiracle86",
-      "name": "Kyle Miracle",
-      "avatar_url": "https://avatars3.githubusercontent.com/u/24704300?v=4",
-      "profile": "https://github.com/kmiracle86",
-      "contributions": [
-        "bug",
         "review"
       ]
     }
