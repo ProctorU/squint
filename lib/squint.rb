@@ -30,7 +30,8 @@ module Squint
             if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
               memo << klass.squint_hash_field_reln(key => arg[key])
             else
-              save_args << {  key => arg[key] }
+              save_args[0] ||= {}
+              save_args[0][key] = arg[key]
             end
           end
         elsif arg.present?
@@ -40,6 +41,8 @@ module Squint
       end
       if ActiveRecord::VERSION::STRING > '5'
         reln = ActiveRecord::Relation::WhereClause.new(reln, [])
+        save_args << [] if save_args.size == 1
+      else
         save_args << [] if save_args.size == 1
       end
       reln += super(*save_args) unless save_args.empty?
