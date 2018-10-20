@@ -8,6 +8,7 @@ gem "pry-byebug", group: [:development, :test]
 gem "pry-highlight", group: [:development, :test]
 gem "pry-rails", group: [:development, :test]
 gem "pry-remote", group: [:development, :test]
+gem "pg", "~> 0.18", group: [:development, :test]
 gem "rubocop", require: false
 gem "storext"
 gem "rails", "5.2.1"
