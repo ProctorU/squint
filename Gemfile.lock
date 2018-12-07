@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    squint (1.0.1)
+    squint (1.1.0)
       pg
       rails (>= 4.2.8)
 
@@ -178,6 +178,7 @@ DEPENDENCIES
   appraisal
   minitest-ci
   minitest-focus
+  pg (~> 0.18)
   pry-byebug
   pry-highlight
   pry-rails
@@ -187,4 +188,4 @@ DEPENDENCIES
   storext
 
 BUNDLED WITH
-   1.15.3
+   1.16.6

@@ -39,7 +39,12 @@ module Squint
         end
         memo
       end
-      if ActiveRecord::VERSION::STRING > '5'
+      if ActiveRecord::VERSION::STRING >= '5.2'
+        # In 5.2 the WhereClause private class no longer takes two arguments.
+        # Commit where it was removed:
+        # https://github.com/rails/rails/commit/213796fb4936dce1da2f0c097a054e1af5c25c2c#diff-c9d167bac00ff2f45c5b5e035e8a80e8
+        reln = ActiveRecord::Relation::WhereClause.new(reln)
+      elsif  ActiveRecord::VERSION::STRING > '5'
         reln = ActiveRecord::Relation::WhereClause.new(reln, [])
       end
       save_args << [] if save_args.size == 1
