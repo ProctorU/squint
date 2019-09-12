@@ -19,6 +19,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - No changes.
 
+## 1.1.1 - 2019-09-12
+
+### Added
+
+- No additions.
+
+### Changed
+
+- Remove `warning: already initialized constant Squint::HASH_DATA_COLUMNS` on initializaton
+
+### Removed
+
+- No removals.
+
 ## 1.1.0 - 2018-12-07
 
 ### Added

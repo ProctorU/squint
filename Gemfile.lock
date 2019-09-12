@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    squint (1.1.0)
+    squint (1.1.1)
       pg
       rails (>= 4.2.8)
 
@@ -188,4 +188,4 @@ DEPENDENCIES
   storext
 
 BUNDLED WITH
-   1.16.6
+   1.17.3

@@ -70,7 +70,7 @@ module Squint
     # put together a list of columns in this model
     # that are hstore, json, or jsonb and will benefit from
     # searchability
-    HASH_DATA_COLUMNS = base.columns_hash.keys.map do |col_name|
+    HASH_DATA_COLUMNS ||= base.columns_hash.keys.map do |col_name|
       if %w[hstore json jsonb].include?(base.columns_hash[col_name].sql_type)
         [col_name.to_sym, base.columns_hash[col_name].sql_type]
       end
