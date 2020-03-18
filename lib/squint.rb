@@ -27,8 +27,8 @@ module Squint
       reln = args.inject([]) do |memo, arg|
         if arg.is_a?(Hash)
           arg.keys.each do |key|
-            if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
-              memo << klass.squint_hash_field_reln(key => arg[key])
+            if arg[key].is_a?(Hash) && self.klass.const_get('HASH_DATA_COLUMNS')[key]
+              memo << klass.squint_hash_field_reln(self.klass, key => arg[key])
             else
               save_args[0] ||= {}
               save_args[0][key] = arg[key]
@@ -70,11 +70,11 @@ module Squint
     # put together a list of columns in this model
     # that are hstore, json, or jsonb and will benefit from
     # searchability
-    HASH_DATA_COLUMNS ||= base.columns_hash.keys.map do |col_name|
+    base.const_set('HASH_DATA_COLUMNS', base.columns_hash.keys.map do |col_name|
       if %w[hstore json jsonb].include?(base.columns_hash[col_name].sql_type)
         [col_name.to_sym, base.columns_hash[col_name].sql_type]
       end
-    end.compact.to_h
+    end.compact.to_h)
 
     ar_reln_module.class_eval do
       prepend WhereMethods
@@ -88,10 +88,10 @@ module Squint
     # return an Arel object with the appropriate query
     # Strings want to be a SQL Literal, other things can be
     # passed in bare to the eq or in operator
-    def self.squint_hash_field_reln(*args)
+    def self.squint_hash_field_reln(klass, *args)
       temp_attr = args[0]
       contains_nil = false
-      column_type = HASH_DATA_COLUMNS[args[0].keys.first]
+      column_type = klass.const_get('HASH_DATA_COLUMNS')[args[0].keys.first]
       column_name_segments = []
       quote_char = '"'.freeze
       while  temp_attr.is_a?(Hash)

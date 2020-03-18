@@ -11,4 +11,6 @@ class Post < ActiveRecord::Base
   store_attribute :storext_hstore_attributes, :hstore_friend_count, Integer, default: 0
   store_attribute :storext_hstore_attributes, :hstore_is_awesome, Integer, default: false
   store_attribute :storext_hstore_attributes, :hstore_is_present, Integer, default: nil
+
+  store_attribute :settings, :zip_code, String, default: '90210'
 end
