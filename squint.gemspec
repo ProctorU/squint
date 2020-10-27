@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
                 "Rakefile", "readme.md", ".all-contributorsrc"]
   s.test_files = Dir["test/**/*"]
 
-  s.add_dependency "rails", ">= 4.2.8"
+  s.add_dependency "rails", ">= 5.1.6.2"
   s.add_dependency "pg"
 
   s.add_development_dependency 'appraisal'
