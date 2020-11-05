@@ -92,6 +92,17 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "jamescook",
+      "name": "James Cook",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/4067?s=460&u=cb404cc0f1737c2fc53411e300cc8e158ef29295&v=4",
+      "profile": "https://github.com/jamescook",
+      "contributions": [
+        "code",
+        "test",
+        "review"
+      ]
     }
   ]
 }
