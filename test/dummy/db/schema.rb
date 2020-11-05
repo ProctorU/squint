@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -11,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170512185941) do
+ActiveRecord::Schema.define(version: 20200318185943) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,11 +25,17 @@ ActiveRecord::Schema.define(version: 20170512185941) do
     t.hstore   "storext_hstore_attributes"
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
+    t.jsonb    "settings"
+    t.index ["properties"], name: "index_posts_on_properties", using: :gin
+    t.index ["request_info"], name: "index_posts_on_request_info", using: :gin
+    t.index ["storext_hstore_attributes"], name: "index_posts_on_storext_hstore_attributes", using: :gin
+    t.index ["storext_jsonb_attributes"], name: "index_posts_on_storext_jsonb_attributes", using: :gin
   end
 
-  add_index "posts", ["properties"], name: "index_posts_on_properties", using: :gin
-  add_index "posts", ["request_info"], name: "index_posts_on_request_info", using: :gin
-  add_index "posts", ["storext_hstore_attributes"], name: "index_posts_on_storext_hstore_attributes", using: :gin
-  add_index "posts", ["storext_jsonb_attributes"], name: "index_posts_on_storext_jsonb_attributes", using: :gin
+  create_table "users", force: :cascade do |t|
+    t.hstore   "settings"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
 end

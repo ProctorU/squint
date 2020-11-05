@@ -132,4 +132,9 @@ class SquintTest < ActiveSupport::TestCase
                    created_at: '2015-01-01')
     end
   end
+
+  test 'HASH_DATA_COLUMNS is not shared between models' do
+    assert_equal('hstore', User::HASH_DATA_COLUMNS[:settings])
+    assert_equal('jsonb' , Post::HASH_DATA_COLUMNS[:settings])
+  end
 end

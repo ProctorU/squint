@@ -27,7 +27,7 @@ module Squint
       reln = args.inject([]) do |memo, arg|
         if arg.is_a?(Hash)
           arg.keys.each do |key|
-            if arg[key].is_a?(Hash) && HASH_DATA_COLUMNS[key]
+            if arg[key].is_a?(Hash) && klass::HASH_DATA_COLUMNS[key]
               memo << klass.squint_hash_field_reln(key => arg[key])
             else
               save_args[0] ||= {}
@@ -70,7 +70,7 @@ module Squint
     # put together a list of columns in this model
     # that are hstore, json, or jsonb and will benefit from
     # searchability
-    HASH_DATA_COLUMNS ||= base.columns_hash.keys.map do |col_name|
+    base::HASH_DATA_COLUMNS = base.columns_hash.keys.map do |col_name|
       if %w[hstore json jsonb].include?(base.columns_hash[col_name].sql_type)
         [col_name.to_sym, base.columns_hash[col_name].sql_type]
       end
@@ -91,7 +91,7 @@ module Squint
     def self.squint_hash_field_reln(*args)
       temp_attr = args[0]
       contains_nil = false
-      column_type = HASH_DATA_COLUMNS[args[0].keys.first]
+      column_type = self::HASH_DATA_COLUMNS[args[0].keys.first]
       column_name_segments = []
       quote_char = '"'.freeze
       while  temp_attr.is_a?(Hash)
